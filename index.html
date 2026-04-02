@@ -126,6 +126,9 @@
   .week-links {
     display: flex; align-items: center; gap: 8px;
     flex-shrink: 0; margin-left: 16px;
+    flex-wrap: wrap;       /* 자리가 부족하거나 줄바꿈 명령이 있으면 다음 줄로 넘김 */
+    max-width: 300px;     /* 적절한 가로 너비를 주면 알아서 줄바꿈이 일어납니다 */
+    justify-content: flex-end; /* 오른쪽 정렬 유지 */
   }
   .link-pill {
     display: inline-flex; align-items: center; gap: 4px;
@@ -143,6 +146,7 @@
   background: #FEF3C7; color: #B45309;
   border: 1px solid #FDE68A;
   margin-right: 6px; vertical-align: middle;
+  margin-left: 10px;
   }
 
   .badge-locked {
@@ -152,6 +156,7 @@
   background: #F3F4F6; color: #9CA3AF;
   border: 1px solid #E5E7EB;
   margin-right: 6px; vertical-align: middle;
+  margin-left: 10px;
   }
 
   .pill-note {
@@ -171,17 +176,23 @@
   }
   .pill-soon {
     color: var(--amber); border-color: #FDE68A;
-    background: #FFFBEB; cursor: not-allowed;
-    pointer-events: none;
+    background: #FFFBEB; 
   }
+  .pill-soon:hover { background: #fcab14; color: #fff; border-color: #ffbf49; }
+
 
   /* 상태 뱃지 */
   .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 11px; font-weight: 600;
-    padding: 4px 10px; border-radius: 20px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    font-size: 11px; font-weight: 600; border-radius: 20px;
     white-space: nowrap; flex-shrink: 0; margin-left: 8px;
-  }
+    /* ✅ 핵심: padding 대신 고정 너비를 사용하세요 */
+    width: 70px;             /* 모든 뱃지의 가로 길이를 90px로 통일 */
+    height: 24px;            /* 세로 길이도 통일하면 더 깔끔합니다 */
+    padding: 0;              /* 내부 여백 때문에 크기가 변하는 걸 방지 */
+    box-sizing: border-box;  /* 테두리 두께가 너비에 영향을 주지 않도록 설정 */
+  }    
+  
   .badge-open   { background: #DCFCE7; color: #15803D; }
   .badge-soon   { background: #FEF3C7; color: #B45309; }
   .badge-locked { background: var(--bg-soft); color: var(--border-mid); }
@@ -207,8 +218,46 @@
     .week-desc { display: none; }
     .status-badge { display: none; }
   }
+
+  .pw-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(27,58,92,0.85);
+  display: flex; align-items: center; justify-content: center;
+  }
+.pw-box {
+  background: #fff; border-radius: 14px;
+  padding: 40px 36px; width: 320px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  }
+.pw-box h2 { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+.pw-box p  { font-size: 12px; color: var(--soft); margin-bottom: 20px; }
+.pw-input {
+  width: 100%; padding: 10px 14px; border-radius: 8px;
+  border: 1.5px solid var(--border); font-size: 14px;
+  text-align: center; letter-spacing: .1em;
+  outline: none; margin-bottom: 10px;
+  }
+.pw-input:focus { border-color: var(--blue); }
+.pw-btn {
+  width: 100%; padding: 10px; border-radius: 8px;
+  background: var(--navy); color: #fff;
+  font-size: 13px; font-weight: 700; border: none; cursor: pointer;
+  }
+.pw-btn:hover { background: var(--blue); }
+.pw-error { font-size: 12px; color: var(--red, #B91C1C); margin-top: 8px; display: none; }
+
 </style>
 </head>
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-box">
+    <h2>🔒 FF Academy</h2>
+    <p>교육생 전용 페이지입니다.<br>비밀번호를 입력해주세요.</p>
+    <input class="pw-input" type="password" id="pwInput"
+           placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkPw()">
+    <button class="pw-btn" onclick="checkPw()">입장하기</button>
+    <div class="pw-error" id="pwError">비밀번호가 올바르지 않습니다.</div>
+  </div>
+</div>
 <body>
 
 <!-- ── HEADER ── -->
@@ -227,8 +276,8 @@
 <!-- ── INTRO ── -->
 <div class="intro">
   <div class="intro-eyebrow">Real Estate Master</div>
-  <h1>부동산 실무 교육 커리큘럼</h1>
-  <p>토지·건물의 기초 개념부터 — 현장에서 바로 쓰는 부동산 지식을 10주에 걸쳐 쌓습니다</p>
+  <h1>부동산 교육 커리큘럼</h1>
+  <p>토지·건물의 기초 개념부터 — 현장에서 바로 쓰는 부동산 지식을 학습합니다</p>
 </div>
 
 <!-- ── SYLLABUS ── -->
@@ -242,15 +291,31 @@
   </div>
 
   <!-- W1 -->
-  <div class="week-row open">
-    <div class="week-num">WEEK 1</div>
+    <div class="week-row open">
+    <div class="week-num">week1</div>
     <div class="week-bar"style="background:var(--soft);"></div>
     <div class="week-info">
-      <div class="week-title"><span class="badge-offline">👨🏻‍🏫대면</span> Kick-off & 오피스 부동산 및 건축 입문</div>
+      <div class="week-title"> Orientation</div>
+
+    </div>
+    <div class="week-links">    
+      <a href="https://docs.google.com/presentation/d/1N5dMwWd99i50fim4n05RZixIL-lSylXGxLY3yUuaE-k/edit" class="link-pill pill-soon"target="_blank" rel="noopener noreferrer">🔗교육소개</a>
+      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>4/2(목)</span>
+
+    </div>
+  </div>
+
+  <div class="week-row open">
+    <div class="week-num"></div>
+    <div class="week-bar"style="background:var(--soft);"></div>
+    <div class="week-info">
+      <div class="week-title"> 오피스 부동산 및 건축 입문<span class="badge-offline">👨🏻‍🏫대면</span></div>
       <div class="week-desc"> 강의자: 김대일 대표님, 박재규 팀장님 </div>
     </div>
-    <div class="week-links">
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>자료 없음</span>
+    <div class="week-links">      
+      <a href="https://docs.google.com/presentation/d/1a8LqT380keMECTWeyYLvpgUez-xsDMNsl_dGHsE_Iko/edit?slide=id.g3dcd8c7760d_0_0#slide=id.g3dcd8c7760d_0_0" class="link-pill pill-note"target="_blank" rel="noopener noreferrer">📖 자료1</a>
+      <a href="https://docs.google.com/presentation/d/1GRCh25gp_P5RXbnMha_90uT1LxOUZ-njIrcYc-iObhk/edit?slide=id.p1#slide=id.p1" class="link-pill pill-note" target="_blank" rel="noopener noreferrer">📖 자료2</a>
+      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>4/2(목)</span>
     </div>
   </div>
 
@@ -261,17 +326,17 @@
   </div>
 
   <!-- W2 -->
-  <div class="week-row locked">
+  <div class="week-row open">
     <div class="week-num">WEEK 2</div>
-    <div class="week-bar"></div>
+    <div class="week-bar"style="background:var(--green);"></div>
     <div class="week-info">
       <div class="week-title">부동산 기초 개념</div>
       <div class="week-desc">토지·건물 정의, 용도지역·지구·구역, 건폐율·용적률, 공적 장부 3종</div>
     </div>
     <div class="week-links">
-      <a href="week2.html" class="link-pill pill-note">📖 교안</a>
-      <a href="https://docs.google.com/spreadsheets/d/1TmXR62rE9LV7bKIuIGQ1qu3L-8AUMhGna0588PpytWc/edit?gid=0#gid=0" target="_blank" class="link-pill pill-hw">📝 과제</a>
-      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>공개</span>
+      <a href="week2.html" class="link-pill pill-note" target="_blank" rel="noopener noreferrer">📖 자료</a>
+      <a href="https://docs.google.com/spreadsheets/d/1TmXR62rE9LV7bKIuIGQ1qu3L-8AUMhGna0588PpytWc/edit?gid=0#gid=0" target="_blank" class="link-pill pill-hw"target="_blank" rel="noopener noreferrer">📝 과제</a>
+      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>4/9(목)</span>
     </div>
   </div>
 
@@ -281,12 +346,12 @@
     <div class="week-bar"></div>
     <div class="week-info">
       <div class="week-title">오피스 임대차 구조</div>
-      <div class="week-desc">면적·전용률, NOC·관리비, 계약 협상 조건, 계약서 핵심 조항, 임대차 프로세스</div>
+      <div class="week-desc">면적·전용률, NOC·관리비, 계약 협상 조건, 계약서 핵심 조항</div>
     </div>
     <div class="week-links">
-      <a href="week3_4.html" class="link-pill pill-note">📖 교안</a>
-      <a href="과제링크를_여기에" target="_blank" class="link-pill pill-hw">📝 과제</a>
-      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>공개</span>
+      <span class="link-pill pill-locked">📖 자료</span>
+      <span class="link-pill pill-locked">📝 과제</span>
+      <span class="status-badge badge-soon"><span class="status-dot dot-soon"></span>4/16(목)</span>
     </div>
   </div>
 
@@ -296,12 +361,12 @@
     <div class="week-bar"></div>
     <div class="week-info">
       <div class="week-title">오피스 하드웨어</div>
-      <div class="week-desc">코어 구조, 층고·적재하중, 공조·BMS, 전기 용량, 법적 요구사항</div>
+      <div class="week-desc">코어 구조, 층고·적재하중, 공조·BMS, 전력, 법적 요구사항</div>
     </div>
     <div class="week-links">
-      <a href="week3_4.html#s12" class="link-pill pill-note">📖 교안</a>
-      <a href="과제링크를_여기에" target="_blank" class="link-pill pill-hw">📝 과제</a>
-      <span class="status-badge badge-open"><span class="status-dot dot-open"></span>공개</span>
+      <span class="link-pill pill-locked">📖 자료</span>
+      <span class="link-pill pill-locked">📝 과제</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>4/23(목)</span>
     </div>
   </div>
 
@@ -310,13 +375,13 @@
     <div class="week-num">WEEK 5</div>
     <div class="week-bar"></div>
     <div class="week-info">
-      <div class="week-title"><span class="badge-locked">👨🏻‍🏫대면</span>패스트파이브에서의 부동산</div>
+      <div class="week-title">패스트파이브에서의 부동산<span class="badge-locked">👨🏻‍🏫대면</span></div>
       <div class="week-desc">강의자: 이진욱 팀장님</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-soon">📖 교안</span>
-      <span class="link-pill pill-soon">📝 과제</span>
-      <span class="status-badge badge-soon"><span class="status-dot dot-soon"></span>예정</span>
+      <span class="link-pill pill-locked">📖 자료</span>
+      <span class="link-pill pill-locked">📝 과제</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>4/30(목)</span>
     </div>
   </div>
   
@@ -335,9 +400,9 @@
       <div class="week-desc">건물 등급, 주요 권역 특징, 랜드마크, 테넌트 분석</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-locked">📖 교안</span>
+      <span class="link-pill pill-locked">📖 자료</span>
       <span class="link-pill pill-locked">📝 과제</span>
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>준비 중</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>5/7(목)</span>
     </div>
   </div>
 
@@ -350,9 +415,9 @@
       <div class="week-desc">임대인 유형(자산가·리츠·신탁사), 운영 주체(PM·FM·LM), 글로벌 자문사, 개발 관련</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-locked">📖 교안</span>
+      <span class="link-pill pill-locked">📖 자료</span>
       <span class="link-pill pill-locked">📝 과제</span>
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>준비 중</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>5/14(목)</span>
     </div>
   </div>
 
@@ -371,9 +436,9 @@
       <div class="week-desc">NOI, Cap Rate, IRR, LTV, 리모델링, 밸류업</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-locked">📖 교안</span>
+      <span class="link-pill pill-locked">📖 자료</span>
       <span class="link-pill pill-locked">📝 과제</span>
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>준비 중</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>5/21(목)</span>
     </div>
   </div>
 
@@ -386,9 +451,9 @@
       <div class="week-desc">리테일, 지식산업센터, 대체 자산(데이터센터·물류센터), 부동산 관련 주요 이슈</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-locked">📖 교안</span>
+      <span class="link-pill pill-locked">📖 자료</span>
       <span class="link-pill pill-locked">📝 과제</span>
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>준비 중</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>5/28(목)</span>
     </div>
   </div>
 
@@ -397,13 +462,13 @@
     <div class="week-num">WEEK 10</div>
     <div class="week-bar"></div>
     <div class="week-info">
-      <div class="week-title"><span class="badge-locked">👨🏻‍🏫대면</span>9주차 과제 조별 발표 & 세일즈 관련 강의</div>
+      <div class="week-title">9주차 과제 조별 발표 & 세일즈 관련 강의<span class="badge-locked">👨🏻‍🏫대면</span></div>
       <div class="week-desc">강의자: 김현준 팀장님</div>
     </div>
     <div class="week-links">
-      <span class="link-pill pill-locked">📖 교안</span>
+      <span class="link-pill pill-locked">📖 자료</span>
       <span class="link-pill pill-locked">📝 과제</span>
-      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>준비 중</span>
+      <span class="status-badge badge-locked"><span class="status-dot dot-locked"></span>6/4(목)</span>
     </div>
   </div>
 
@@ -411,8 +476,21 @@
 
 <!-- ── FOOTER ── -->
 <footer>
-  <p>FF Academy · 부동산 실무 교육<br>본 교안은 교육 목적으로 제작되었으며 무단 배포를 금합니다.</p>
+  <p>FF Academy · 부동산 지식 교육<br>본 자료은 교육 목적으로 제작되었으며 무단 배포를 금합니다.</p>
 </footer>
-
+<script>
+function checkPw() {
+  const pw = 'five0402';
+  if (document.getElementById('pwInput').value === pw) {
+    document.getElementById('pwOverlay').style.display = 'none';
+    sessionStorage.setItem('ff_auth', 'ok');
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+  }
+}
+if (sessionStorage.getItem('ff_auth') === 'ok') {
+  document.getElementById('pwOverlay').style.display = 'none';
+}
+</script>
 </body>
 </html>
