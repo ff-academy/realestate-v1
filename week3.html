@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Academy | 부동산 지식 교육</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:        #1B3A5C;
+    --w1:          #1B5FA8;
+    --w1-light:    #D6E8F7;
+    --w2:          #1E6B4A;
+    --w2-light:    #D4EDDA;
+    --w3:          #6B2FA0;
+    --w3-light:    #EDE0F5;
+    --accent:      #E8A020;
+    --accent-light:#FDF3DC;
+    --teal:        #0D7A6B;
+    --teal-light:  #D4F0EB;
+    --red:         #B91C1C;
+    --red-light:   #FEF2F2;
+    --bg:          #F4F6F8;
+    --white:       #FFFFFF;
+    --text:        #1E2532;
+    --text-soft:   #5A6172;
+    --border:      #DDE2EA;
+    --sidebar-w:   252px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 14px; }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0;
+    background: var(--navy);
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+  .sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .sb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+  .sb-title { font-size: 14px; font-weight: 800; color: #fff; line-height: 1.4; }
+  .sb-sub { font-size: 11px; color: rgba(255,255,255,.38); margin-top: 3px; line-height: 1.5; }
+
+  .sb-week-section { margin-top: 8px; }
+  .sb-week-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px 4px;
+    color: rgba(255,255,255,.22);
+    font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .sb-week-label:first-of-type { border-top: none; margin-top: 0; }
+  .sb-week-badge {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px; letter-spacing: .04em;
+  }
+  .badge-w2 { background: var(--w2); color: #fff; }
+  .badge-w3 { background: var(--w3); color: #fff; }
+  .badge-w1 { background: var(--w1); color: #fff; }
+
+  .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    color: rgba(255,255,255,.55); font-size: 12.5px;
+    cursor: pointer; border-left: 2px solid transparent;
+    transition: all .15s; text-decoration: none;
+  }
+  .sb-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .sb-item.active { color: #fff; background: rgba(255,255,255,.1); }
+  .sb-item.w2-item.active { border-left-color: #4EC994; }
+  .sb-item.w3-item.active { border-left-color: #C495E0; }
+  .sb-item.w1-item.active { border-left-color: #6AAFE6; }
+  .sb-chip {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+    color: rgba(255,255,255,.6); transition: all .15s;
+  }
+  .sb-item.w2-item.active .sb-chip { background: var(--w2); color: #fff; }
+  .sb-item.w3-item.active .sb-chip { background: var(--w3); color: #fff; }
+  .sb-item.w1-item.active .sb-chip { background: var(--w1); color: #fff; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 44px 56px 80px; max-width: 1060px; min-width: 0; }
+
+  /* ── WEEK HERO ── */
+  .week-hero {
+    border-radius: 16px; padding: 40px 40px;
+    margin-bottom: 48px; position: relative; overflow: hidden;
+  }
+  .week-hero::before {
+    content: ''; position: absolute; top: -50px; right: -50px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .week-hero::after {
+    content: ''; position: absolute; bottom: -30px; right: 80px;
+    width: 150px; height: 150px; border-radius: 50%;
+    background: rgba(255,255,255,.03);
+  }
+  .hero-w2 { background: linear-gradient(135deg, #1E6B4A 0%, #2E8B5E 60%, #1B5E42 100%); }
+  .hero-w3 { background: linear-gradient(135deg, #5A2D82 0%, #7B3FA0 60%, #6B2FA0 100%); }
+  .hero-w1 { background: linear-gradient(135deg, #1B3A5C 0%, #1B5FA8 60%, #2E6DA4 100%); }
+  .hero-week-tag {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    background: rgba(255,255,255,.15); color: rgba(255,255,255,.9);
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .week-hero h1 { color: #fff; font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+  .week-hero p  { color: rgba(255,255,255,.8); font-size: 14px; margin-bottom: 0; }
+  .hero-chips   { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+  .hero-chip    { padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.15); color: #fff; font-size: 12px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 68px; scroll-margin-top: 24px; opacity: 0; transform: translateY(14px); animation: fadeUp .4s ease forwards; }
+  .section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.08s}
+  .section:nth-child(3){animation-delay:.12s}.section:nth-child(4){animation-delay:.16s}
+  .section:nth-child(5){animation-delay:.20s}.section:nth-child(6){animation-delay:.24s}
+  .section:nth-child(7){animation-delay:.28s}.section:nth-child(8){animation-delay:.32s}
+  .section:nth-child(9){animation-delay:.36s}.section:nth-child(10){animation-delay:.40s}
+  .section:nth-child(11){animation-delay:.44s}.section:nth-child(12){animation-delay:.48s}
+  @keyframes fadeUp { to { opacity:1; transform:none; } }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 22px; padding-bottom: 14px;
+    border-bottom: 2px solid var(--w1-light);
+  }
+  .section-header.w2 { border-bottom-color: var(--w2-light); }
+  .section-header.w3 { border-bottom-color: var(--w3-light); }
+  .section-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--w1); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .num-w2 { background: var(--w2); }
+  .num-w3 { background: var(--w3); }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+
+  /* ── SUB ── */
+  .sub { margin-bottom: 30px; }
+  .sub-title {
+    font-size: 17px; font-weight: 700; color: var(--w1);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .sub-title::before { content: ''; width: 3px; height: 15px; background: var(--w1); border-radius: 2px; flex-shrink: 0; }
+  .sub-title.w2 { color: var(--w2); }
+  .sub-title.w2::before { background: var(--w2); }
+  .sub-title.w3 { color: var(--w3); }
+  .sub-title.w3::before { background: var(--w3); }
+  .sub-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; }
+
+  p { font-size: 13.5px; color: #374151; line-height: 1.85; margin-bottom: 10px; }
+  p strong { color: var(--navy); }
+  .hl { background: #fffbeb; border-bottom: 2px solid #fde68a; font-weight: 600; padding: 0 2px; }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 8px; padding: 13px 16px; margin: 10px 0; font-size: 13px; line-height: 1.75; }
+  .callout .clabel, .callout .label { font-weight: 700; font-size: 11.5px; letter-spacing: .04em; margin-bottom: 4px; }
+  .callout-tip   { background: var(--w1-light);   border-left: 3px solid var(--w1);   color: #0D2D5E; }
+  .callout-tip   .clabel, .callout-tip   .label { color: var(--w1); }
+  .callout-warn  { background: var(--red-light);  border-left: 3px solid var(--red);   color: #7f1d1d; }
+  .callout-warn  .clabel, .callout-warn  .label { color: var(--red); }
+  .callout-point { background: var(--accent-light);border-left: 3px solid var(--accent);color: #5a3e00; }
+  .callout-point .clabel, .callout-point .label { color: var(--accent); }
+  .callout-teal  { background: var(--teal-light); border-left: 3px solid var(--teal);  color: #064e3b; }
+  .callout-teal  .clabel, .callout-teal  .label { color: var(--teal); }
+  .callout-w2    { background: var(--w2-light);   border-left: 3px solid var(--w2);   color: #0b3d21; }
+  .callout-w2    .clabel, .callout-w2    .label { color: var(--w2); }
+  .callout-w3    { background: var(--w3-light);   border-left: 3px solid var(--w3);   color: #3b1060; }
+  .callout-w3    .clabel, .callout-w3    .label { color: var(--w3); }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .03em; white-space: nowrap; }
+  thead th.th-w2 { background: var(--w2); }
+  thead th.th-w3 { background: var(--w3); }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child  { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  tbody tr:hover { background: var(--w1-light); transition: background .12s; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; line-height: 1.7; }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--navy); }
+  .td-w2 { background: var(--w2-light) !important; font-weight: 600; color: var(--w2) !important; }
+  .td-w3 { background: var(--w3-light) !important; font-weight: 600; color: var(--w3) !important; }
+  .col-sm { width: 110px; min-width: 110px; }
+  .col-md { width: 160px; min-width: 160px; }
+  .col-lg { width: 200px; min-width: 200px; }
+
+  /* ── FORMULA ── */
+  .formula { background: var(--navy); color: #c7d8f8; padding: 16px 22px; border-radius: 8px; font-size: 15px; font-weight: 600; text-align: center; margin: 12px 0; line-height: 1.9; }
+  .formula span { color: #93c5fd; }
+  .formula em   { color: #fde68a; font-style: normal; }
+  .formula small { font-size: 13px; opacity: .75; font-weight: 400; font-family: 'Noto Sans KR', sans-serif; }
+
+  /* ── CARDS ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
+  .card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--w1); border-radius: 10px; padding: 16px; transition: box-shadow .15s, transform .15s; }
+  .card.border-w2 { border-top-color: var(--w2); }
+  .card.border-w3 { border-top-color: var(--w3); }
+  .card:hover { box-shadow: 0 4px 18px rgba(27,95,168,.1); transform: translateY(-2px); }
+  .card-icon  { font-size: 22px; margin-bottom: 8px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .card-desc  { font-size: 12px; color: var(--text-soft); line-height: 1.6; }
+
+  /* ── CHECKLIST (cl = week2기준, checklist = 기존) ── */
+  ul.cl, .checklist { list-style: none; margin: 8px 0; }
+  ul.cl li, .checklist li {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 7px 0; font-size: 13.5px; color: #374151;
+    border-bottom: 1px dashed #e5e7eb; line-height: 1.7;
+  }
+  ul.cl li:last-child, .checklist li:last-child { border-bottom: none; }
+  ul.cl li::before, .checklist li::before {
+    content: '✓'; width: 18px; height: 18px; flex-shrink: 0;
+    background: var(--w1); color: #fff; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; margin-top: 3px;
+  }
+  ul.cl li span { flex: 1; }
+  .checklist li span { flex: 1; }
+  ul.cl.warn li::before, .checklist.warn li::before { background: var(--red); content: '!'; }
+  ul.cl.teal li::before, .checklist.teal li::before { background: var(--teal); }
+  ul.cl.w2   li::before, .checklist.w2   li::before { background: var(--w2); }
+  ul.cl.w3   li::before, .checklist.w3   li::before { background: var(--w3); }
+
+  /* ── INTERACTIVE CHECKLIST ── */
+  .icheck { list-style: none; margin: 10px 0; }
+  .icheck li { display: flex; align-items: flex-start; gap: 9px; padding: 8px 10px; font-size: 13.5px; color: #374151; border-bottom: 1px dashed #e5e7eb; border-radius: 6px; cursor: pointer; transition: background .12s; line-height: 1.7; }
+  .icheck li:last-child { border-bottom: none; }
+  .icheck li:hover { background: #f3f4f6; }
+  .icheck li.checked { background: var(--w3-light); color: #3b1060; }
+  .icheck .ibox { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 3px; transition: all .12s; }
+  .icheck li.checked .ibox { background: var(--w3); border-color: var(--w3); }
+  .icheck .stars { margin-left: auto; font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; padding-left: 8px; }
+  .progress-bar-wrap { margin-top: 14px; }
+  .progress-bar-wrap .pb-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-soft); margin-bottom: 5px; }
+  .progress-bar-track { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill  { height: 100%; background: var(--w3); border-radius: 4px; transition: width .3s; }
+
+  /* ── LAYER DIAGRAM ── */
+  .layer-diagram { display: flex; flex-direction: column; margin: 14px 0; border-radius: 8px; overflow: hidden; }
+  .layer { padding: 13px 18px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .layer-1 { background: #1B3A5C; color: #fff; }
+  .layer-2 { background: #1B5FA8; color: #fff; }
+  .layer-3 { background: #6AAFE6; color: #1B3A5C; }
+  .layer-tag { font-size: 11px; opacity: .75; margin-left: auto; letter-spacing: .03em; font-weight: 400; }
+
+  /* ── KV CARDS ── */
+  .kv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 12px 0; }
+  .kv-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kv-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-bottom: 5px; text-transform: uppercase; }
+  .kv-value { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+  .kv-desc  { font-size: 12px; color: var(--text-soft); line-height: 1.55; }
+  .kv-card.top-w1     { border-top: 3px solid var(--w1); }
+  .kv-card.top-w2     { border-top: 3px solid var(--w2); }
+  .kv-card.top-w3     { border-top: 3px solid var(--w3); }
+  .kv-card.top-accent { border-top: 3px solid var(--accent); }
+  .kv-card.top-red    { border-top: 3px solid var(--red); }
+
+  /* ── COMPARE 2-COL ── */
+  .cmp2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .cmp-card { border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .cmp-head { padding: 11px 16px; font-weight: 700; font-size: 14px; color: #fff; }
+  .cmp-body { padding: 12px 16px; }
+  .cmp-row  { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed var(--border); gap: 8px; }
+  .cmp-row:last-child { border-bottom: none; }
+  .cmp-key  { color: var(--text-soft); flex-shrink: 0; }
+  .cmp-val  { font-weight: 600; color: var(--text); text-align: right; }
+
+  /* ── GRADE 3-COL ── */
+  .grade3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 14px 0; }
+  .grade-card  { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .grade-head  { padding: 12px 14px; text-align: center; color: #fff; font-weight: 800; font-size: 17px; }
+  .grade-body  { padding: 12px 14px; }
+  .grade-item  { font-size: 12.5px; padding: 5px 0; border-bottom: 1px dashed var(--border); display: flex; gap: 6px; }
+  .grade-item:last-child { border-bottom: none; }
+  .gi-k { color: var(--text-soft); min-width: 52px; flex-shrink: 0; }
+  .gi-v { font-weight: 600; color: var(--text); }
+
+  /* ── FLOW STEPS ── */
+  .flow { display: flex; flex-direction: column; gap: 0; margin: 16px 0; }
+  .flow-step { display: flex; align-items: stretch; gap: 0; }
+  .flow-left  { width: 110px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+  .flow-badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: .5px; }
+  .badge-w2f   { background: var(--w2); }
+  .badge-accent{ background: var(--accent); }
+  .flow-line  { width: 2px; flex: 1; min-height: 18px; margin: 4px 0; }
+  .fline-w2   { background: var(--w2-light); }
+  .flow-content { flex: 1; padding: 10px 14px; margin: 4px 0; border-radius: 8px; border: 1px solid var(--border); }
+  .flow-step-title { font-weight: 700; font-size: 14px; color: var(--navy); }
+  .flow-step-desc  { font-size: 12.5px; color: var(--text-soft); margin-top: 2px; }
+  .flow-content.highlight-step { border-color: var(--accent); background: var(--accent-light); }
+  .flow-content.highlight-step .flow-step-title { color: #7A4800; }
+
+  /* ── STAR TAG ── */
+  .star-section-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .tag-w2     { background: var(--w2-light); color: var(--w2); }
+  .tag-w3     { background: var(--w3-light); color: var(--w3); }
+  .tag-accent { background: var(--accent-light); color: #7A4800; }
+
+  /* ── LINK BUTTONS ── */
+  .lbtn, .link-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; background: var(--w1); color: #fff;
+    border-radius: 6px; font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: all .15s; margin: 3px 3px 3px 0;
+  }
+  .lbtn:hover, .link-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+  .lbtn-outline, .link-btn-outline {
+    background: transparent; color: var(--w1);
+    border: 1.5px solid var(--w1); padding: 3px 11px;
+  }
+  .lbtn-outline:hover, .link-btn-outline:hover { background: var(--w1-light); }
+
+  /* ── REF LINKS ── */
+  .ref-links { display: flex-direction: column; gap: 2px; margin: 12px 0 4px; }
+  .ref-btn {
+    display: block;  width: fit-content;
+    padding: 5px 13px;
+    background: #fff;
+    border: 1.5px solid var(--w2);
+    border-radius: 6px;
+    color: var(--w2);
+    font-size: 12px; font-weight: 600;
+    text-decoration: none;
+    transition: all .15s;
+    line-height: 1.4;
+  }
+  .ref-btn::before { content: '📰'; font-size: 12px; }
+  .ref-btn:hover {
+    background: var(--w2);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(30,107,74,.18);
+  }
+  .ref-btn.ref-w1 { border-color: var(--w1); color: var(--w1); }
+  .ref-btn.ref-w1:hover { background: var(--w1); color: #fff; box-shadow: 0 3px 10px rgba(27,95,168,.18); }
+  .ref-btn.ref-w3 { border-color: var(--w3); color: var(--w3); }
+  .ref-btn.ref-w3:hover { background: var(--w3); color: #fff; box-shadow: 0 3px 10px rgba(107,47,160,.18); }
+  .ref-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .ref-label::before { content: ''; display: inline-block; width: 3px; height: 12px; background: var(--text-soft); border-radius: 2px; }
+
+  /* ── IMAGE ── */
+  img.content-img      { width: 60%; border-radius: 12px; margin: 10px 0; display: block; }
+  img.content-img-wide { width: 70%; }
+
+  /* ── WEEK SEPARATOR ── */
+  .week-separator {
+  margin-bottom: 40px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .week-hero { padding: 32px 24px; }
+    .week-hero h1 { font-size: 22px; }
+    .cmp2, .grade3 { grid-template-columns: 1fr; }
+    img.content-img, img.content-img-wide { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">FF Academy</div>
+    <div class="sb-title">Level 1-2. 오피스 임대차 구조</div>
+  </div>
+  <!-- WEEK 3 -->
+  <div class="sb-week-label">목차</div>
+  <a class="sb-item w2-item" href="#s7"><span class="sb-chip">1</span>면적 개념 및 비용 구조</a>
+  <a class="sb-item w2-item" href="#s8"><span class="sb-chip">2</span>계약 협상 조건</a>
+  <a class="sb-item w2-item" href="#s9"><span class="sb-chip">3</span>계약서 핵심 조항</a>
+  <a class="sb-item w2-item" href="#s10"><span class="sb-chip">4</span>LOI 구조</a>
+  <a class="sb-item w2-item" href="#s11"><span class="sb-chip">5</span>임대차 프로세스 Flow</a>
+</nav>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="main">
+
+<!-- ════════════════════════════════════
+     WEEK 3 — 오피스 임대차 구조
+════════════════════════════════════ -->
+<div class="week-hero hero-w2 week-separator">
+  <div class="hero-week-tag">WEEK 3</div>
+  <h1>오피스 임대차 구조</h1>
+  <p>계약의 언어를 읽는 법 — 면적·비용에서 협상·계약서·프로세스까지</p>
+  <div class="hero-chips">
+    <span class="hero-chip">면적 & 전용률</span>
+    <span class="hero-chip">NOC & 관리비</span>
+    <span class="hero-chip">Rent Free / Fit-out / TI</span>
+    <span class="hero-chip">계약서 조항</span>
+    <span class="hero-chip">제소전화해</span>
+    <span class="hero-chip">LOI 구조</span>
+    <span class="hero-chip">임대차 프로세스</span>
+  </div>
+</div>
+
+<!-- ── S7 ── -->
+<section class="section" id="s7">
+  <div class="section-header w2">
+    <div class="section-num num-w2">1</div>
+    <h2 class="section-title">면적 개념 및 비용 구조</h2>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">전용면적 vs 임대면적 — "몇 평짜리냐"의 기준</div>
+    <p>오피스 계약에서 면적을 말할 때 <strong>어떤 면적을 기준으로 하느냐</strong>에 따라 임대료와 실사용 공간이 달라집니다.</p>
+  <div class="tbl-wrap"><table>
+  <thead>
+    <tr>
+      <th>구분</th>
+      <th>전용면적</th>
+      <th>공용면적</th>
+      <th>임대면적</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="col-md"><strong>정의</strong></td>
+      <td>임차인이 <strong>단독으로 사용</strong>하는 면적</td>
+      <td>건물 내 다른 임차인들과 <strong>함께 사용</strong>하는 면적</td>
+      <td>임대료 산정의 <strong>기준 면적</strong></td>
+    </tr>
+    <tr>
+      <td><strong>포함 범위</strong></td>
+      <td>사무실 내부 공간만.<br>복도·화장실 미포함</td>
+      <td>로비·복도·화장실·<br>엘리베이터 홀·기계실 등</td>
+      <td>전용면적 + 공용면적 중<br>임차인 지분만큼 안분한 부분</td>
+      
+    </tr>
+    <tr>
+      <td><strong>계약서 표기</strong></td>
+      <td>실사용·인허가 기준.<br>책상 배치·인원 계획 시 기준</td>
+      <td>통상 계약서에<br>직접 표기되지 않음</td>
+      <td>"OO평 계약"이라 할 때<br>이 면적을 의미함</td>
+    </tr>
+    <tr>
+      <td><strong>예시</strong></td>
+      <td>130평 (실제 사무 공간)</td>
+      <td>70평 (안분 배분분)</td>
+      <td>200평 (계약 기준)</td>
+    </tr>
+  </tbody>
+</table></div>
+    <div class="callout callout-teal"><div class="clabel">📌 연면적이란?</div>건물의 모든 층 바닥 면적을 합산한 면적으로, 건물 전체 규모를 파악하는 데 사용됩니다. 임대 계약에 직접 사용되지는 않지만, 빌딩 규모를 비교할 때 자주 등장하는 개념입니다.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">전용률 (Efficiency Ratio)</div>
+    <p>전용률은 임대면적 중 실제 내가 쓸 수 있는 면적이 얼마나 되는지를 나타내는 비율입니다.</p>
+    <div class="formula">전용률(%) <span>=</span> ( <em>전용면적</em> ÷ 임대면적 ) × 100<br><small>"같은 임대면적이라도 전용률에 따라 실제 쓸 수 있는 공간이 달라진다"</small></div>
+    <div class="kv-grid">
+      <div class="kv-card top-w2"><div class="kv-label" style="color:var(--w2)">A급(프라임) 오피스</div><div class="kv-value" style="color:var(--w2)">50~60%</div><div class="kv-desc">공용공간이 넓고 로비·시설 수준이 높음</div></div>
+      <div class="kv-card top-accent"><div class="kv-label" style="color:var(--accent)">B급 오피스</div><div class="kv-value" style="color:var(--accent)">60~70%</div><div class="kv-desc">표준적인 공용공간 구성</div></div>
+      <div class="kv-card top-red"><div class="kv-label" style="color:var(--red)">C급/소규모 사무실</div><div class="kv-value" style="color:var(--red)">70% 이상</div><div class="kv-desc">공용공간 최소화, 실사용 비율 높음</div></div>
+    </div>
+    <div class="callout callout-point">
+      <div class="clabel">💡 전용률이 높다고 반드시 '베스트'는 아닙니다 — 다른 요소들을 꼭 체크하세요</div>
+      <ul class="checklist w2" style="margin-top:8px">
+        <li><span><strong>빌딩 등급과 품격:</strong> 프라임급 빌딩은 로비·엘리베이터 홀 등 공용 공간을 넓고 고급스럽게 설계하기 때문에 중소형 빌딩보다 오히려 전용률이 낮습니다. 전용률이 낮아도 입주 기업의 이미지가 올라가는 효과가 있습니다.</span></li>
+        <li><span><strong>공용 시설의 질:</strong> 전용률이 너무 높으면 화장실·복도·휴게 공간이 좁아져 직원들의 실제 업무 쾌적도가 떨어질 수 있습니다.</span></li>
+        <li><span><strong>기둥 위치 (Dead Space):</strong> 전용률 숫자보다 '기둥 없는 구조'가 더 중요합니다. 전용률이 낮아도 기둥이 없는 직사각형 구조가 책상 배치(레이아웃) 효율은 훨씬 높습니다.</span></li>
+      </ul>
+    </div>
+    <div class="callout callout-teal"><div class="clabel">✅ 결론</div>전용률 숫자만 보지 말고, <strong>빌딩 이미지 + 공용 시설 수준 + 내부 레이아웃 효율</strong>을 종합적으로 판단해야 합니다.</div>
+  </div>
+  <!-- 임대료 구조 -->
+  <div class="sub">
+    <div class="sub-title w2">임대료 구조</div>
+    <p>오피스 임대료는 단순히 "월세"가 아니라 <strong>보증금 + 월 임대료</strong> 구조로 이루어집니다. 계약 전 각 항목의 의미와 산정 방식을 정확히 이해해야 합니다.</p>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">항목</th><th class="th-w2">내용</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>보증금</strong></td>
+          <td>계약 시 임대인에게 맡기는 담보금. 통상 월 임대료의 <strong>10~24개월치</strong> 수준이며, 계약 종료 시 반환</td>
+        </tr>
+        <tr>
+          <td><strong>월 임대료</strong></td>
+          <td>매월 납부하는 임대료. <strong>임대면적 × 평당 단가</strong>로 산정</td>
+        </tr>
+        <tr>
+          <td><strong>VAT (부가세)</strong></td>
+          <td>월 임대료에 <strong>10% 별도 부과</strong>가 원칙. 계약서에 VAT 포함/별도 여부 반드시 확인</td>
+        </tr>
+        <tr>
+          <td><strong>관리비</strong></td>
+          <td>임대료와 <strong>별도로 청구</strong>되는 건물 운영 비용 (다음 섹션에서 상세 설명)</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="sub-label">📍 권역별 시장 임대료 수준 (2024년 기준)</div>
+    <div class="kv-grid">
+      <div class="kv-card top-w2">
+        <div class="kv-label" style="color:var(--w2)">CBD · 도심권</div>
+        <div class="kv-value" style="color:var(--w2)">9~13만 원</div>
+        <div class="kv-desc">광화문·을지로·종로<br>평당 월 임대료 기준</div>
+      </div>
+      <div class="kv-card top-accent">
+        <div class="kv-label" style="color:var(--accent)">GBD · 강남권</div>
+        <div class="kv-value" style="color:var(--accent)">10~15만 원</div>
+        <div class="kv-desc">강남·역삼·선릉<br>평당 월 임대료 기준</div>
+      </div>
+      <div class="kv-card top-w1">
+        <div class="kv-label" style="color:var(--w1)">YBD · 여의도권</div>
+        <div class="kv-value" style="color:var(--w1)">7~10만 원</div>
+        <div class="kv-desc">여의도<br>평당 월 임대료 기준</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <div class="clabel">⚠️ 임대료 단가는 임대면적 기준입니다</div>
+      전용률이 65%인 건물에서 평당 10만 원이라면, 실제 사용 공간(전용면적) 기준으로 환산하면 평당 약 <strong>15.4만 원</strong>이 됩니다. 임대료 단가만 보고 건물을 비교하면 안 되는 이유가 여기 있으며, 이것이 뒤에서 배울 <strong>NOC 개념</strong>으로 이어집니다.
+    </div>
+  </div>
+
+  <!-- 관리비 구조 -->
+  <div class="sub">
+    <div class="sub-title w2">관리비 구조</div>
+    <p>관리비는 임대료와 별도로 매월 납부하는 비용으로, 빌딩 운영·유지에 필요한 공통 비용을 각 임차인에게 배분한 것입니다. <strong>임대료가 낮아도 관리비가 높으면 총 점유비용이 올라갈 수 있으니 반드시 합산해서 비교</strong>해야 합니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">항목</th><th class="th-w2">내용</th><th class="th-w2">체크포인트</th></tr></thead>
+      <tbody>
+        <tr><td><strong>공용부 관리비</strong></td><td>청소, 보안, 엘리베이터 유지, 공용부 전기·수도</td><td>관리비 단가(원/㎡)가 시장 평균인지 확인</td></tr>
+        <tr><td><strong>냉난방비</strong></td><td>공조 시스템 운영비. 중앙공조 건물은 공용 부과, 개별공조는 별도 계량</td><td>개별 계량 vs 공용 배분 방식. 여름·겨울 피크 시 비용 급등 여부</td></tr>
+        <tr><td><strong>주차관리비</strong></td><td>주차 운영 인건비·설비 유지비. 계약에 따라 포함 또는 별도</td><td>무료 대수 초과 시 추가 과금 기준</td></tr>
+        <tr><td><strong>기타 운영비</strong></td><td>승강기 정기검사, 소방점검, 공용부 수선·교체비</td><td>수선충당금 별도 부과 여부</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">임대료 산정 방식 — Net Rent vs Gross Rent</div>
+    <div class="cmp2">
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:var(--w2);">Net Rent (순임대료)</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">임대료 지급</span><span class="cmp-val">임대료만 별도 지급</span></div>
+          <div class="cmp-row"><span class="cmp-key">관리비</span><span class="cmp-val">별도 청구</span></div>
+          <div class="cmp-row"><span class="cmp-key">투명성</span><span class="cmp-val">비용 구조 파악 용이</span></div>
+          <div class="cmp-row"><span class="cmp-key">국내 관행</span><span class="cmp-val">Grade A/B 대부분</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:#2E86AB;">Gross Rent (총임대료)</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">임대료 지급</span><span class="cmp-val">임대료 + 관리비 통합</span></div>
+          <div class="cmp-row"><span class="cmp-key">관리비</span><span class="cmp-val">임대료에 포함</span></div>
+          <div class="cmp-row"><span class="cmp-key">투명성</span><span class="cmp-val">비용 구조 파악 어려움</span></div>
+          <div class="cmp-row"><span class="cmp-key">국내 관행</span><span class="cmp-val">일부 소규모 건물</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">임대료 인상 방식 (Escalation)</div>
+    <p>계약 기간 중 임대료가 어떻게 변동되는지를 정하는 조항입니다. 단순히 초기 임대료만 낮추는 것보다 <strong>인상률 협상이 장기적으로 더 큰 절감 효과</strong>를 가져올 수 있습니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">방식</th><th class="th-w2">내용</th><th class="th-w2">임차인 관점</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>고정 인상률</strong><br><small style="color:var(--text-soft)">Fixed Escalation</small></td>
+          <td>매년 약정된 비율(예: 3~5%)로 인상. 가장 일반적인 방식</td>
+          <td>예측 가능성 높아 재무 계획에 유리. 인상률 상한선 협상 필요</td>
+        </tr>
+        <tr>
+          <td><strong>CPI 연동</strong><br><small style="color:var(--text-soft)">Consumer Price Index</small></td>
+          <td>소비자물가지수(CPI) 상승률에 연동하여 인상</td>
+          <td>시장 상황에 따라 변동. 인플레이션 시기에는 불리할 수 있음</td>
+        </tr>
+        <tr>
+          <td><strong>시장 재조정</strong><br><small style="color:var(--text-soft)">Market Review</small></td>
+          <td>갱신 시점에 당시 시장 임대료 수준으로 재산정</td>
+          <td>시장 강세 시 큰 폭 인상 위험. 상한선(Cap) 조항 삽입 협상 필요</td>
+        </tr>
+        <tr>
+          <td><strong>혼합형</strong></td>
+          <td>계약기간 중에는 고정 인상, 갱신 시에는 시장 재조정</td>
+          <td>국내 Grade A 시장에서 가장 흔한 방식</td>
+        </tr>
+        <tr>
+          <td><strong>인상률 상한 협상</strong><br><small style="color:var(--text-soft)">Cap 조항</small></td>
+          <td>인상 시 최대 상한선(예: 연 3% 이내)을 계약서에 명시</td>
+          <td>CPI·시장 재조정 방식과 함께 활용하면 리스크 관리에 효과적</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-warn"><div class="clabel">⚠️ 주의 — 복리 효과를 반드시 계산하세요</div>5년 계약에서 연 5% 고정 인상 조항이 포함되면, 5년 후 임대료는 처음의 <strong>1.28배</strong>(1.05⁵)가 됩니다. 협상 초기에 인상률을 낮추는 것이 TI 지원금보다 장기적으로 더 큰 절감 효과를 줄 수 있습니다.</div>
+  </div>
+</section>
+
+<!-- ── S8 ── -->
+<section class="section" id="s8">
+  <div class="section-header w2">
+    <div class="section-num num-w2">2</div>
+    <h2 class="section-title">계약 협상 조건(Favor)</h2>
+  </div>
+  <p>임차인은 임대료 숫자만 협상하는 것이 아닙니다. 임대료 외에 다양한 <strong>인센티브 조건</strong>을 함께 협상하며, 이 조건들의 경제적 가치를 계산하고 조합하는 것이 실무자의 핵심 역량입니다.</p>
+  <div class="sub">
+    <div class="sub-title w2">렌트프리(Rent Free, 무상 임대 기간)</div>
+    <p>임대인이 임차인에게 일정 기간 동안 임대료를 면제해주는 혜택입니다.</p>
+    <ul class="checklist w2">
+      <li><span><strong>통상 기간:</strong> 1~6개월. 건물 공실 상황, 계약 규모, 계약기간에 따라 길어질 수 있음</span></li>
+      <li><span><strong>관리비 포함 여부:</strong> "임대료 무상"인지, "임대료 + 관리비 무상"인지 반드시 명시. 관리비가 임대료의 20~30% 수준임을 고려하면 차이가 큼</span></li>
+      <li><span><strong>경제적 가치 계산:</strong> Rent Free 3개월 = 임대료 3개월분을 선불로 돌려받는 것과 동일한 효과</span></li>
+    </ul>
+    <div class="callout callout-point"><div class="clabel">💡 협상 전략</div>임대료 인하 요청이 수용되기 어려운 경우, 임대인이 명목 임대료를 유지하면서도 실질적인 혜택을 줄 수 있는 방법이 Rent Free입니다. "임대료 3만원/평 유지 + Rent Free 4개월"처럼 형식적 임대료와 실질 임대료를 분리하여 협상하는 것이 효과적입니다.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">핏 아웃(Fit-out, 공사 기간 임대료 면제)</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">구분</th><th class="th-w2">내용</th><th class="th-w2">협상 포인트</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Fit-out 단독 부여</strong></td><td>Rent Free 외에 공사 기간만큼 추가로 면제</td><td>공사 기간이 길수록 총 혜택이 큼. 공사 기간 산정 기준 명시 필요</td></tr>
+        <tr><td><strong>Rent Free에 포함</strong></td><td>Rent Free 기간 내에 공사가 이루어지도록 일정 조율</td><td>실제 공사가 Rent Free 기간을 초과할 경우 추가 협상 필요</td></tr>
+        <tr><td><strong>관리비·주차비</strong></td><td>공사 기간 중 관리비·주차비 무료 여부</td><td>공사 기간 중 관리비도 발생하므로 포함 여부를 명확히 해야 함</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">TI (Tenant Improvement, 인테리어 지원금)</div>
+    <p>임대인이 임차인의 입주 전 인테리어 비용 일부를 직접 지원하는 조건입니다.</p>
+    <ul class="checklist w2">
+      <li><span><strong>지원 방식:</strong> 현금 직접 지급 vs 임대료 감면 적용. 현금 지급이 임차인에게 유리</span></li>
+      <li><span><strong>단가 기준:</strong> 평당 OO만원 or 전체 금액 한도. 예: "전용면적 기준 평당 100만원 지원"</span></li>
+      <li><span><strong>조기 해지 시 반환:</strong> 계약 중도 해지 시 TI의 잔여 상각분을 반환해야 하는 조항이 붙는 경우가 많음</span></li>
+      <li><span><strong>용도 제한:</strong> 일부 임대인은 TI를 구조 공사에만 사용하도록 제한함. 사용 범위 명시 필요</span></li>
+    </ul>
+    <div class="callout callout-w2"><div class="clabel">💡 TI vs Rent Free 비교 판단</div>TI 1억원과 Rent Free 3개월 중 어느 게 더 유리할까요? 임대면적 200평, 임대료 15만원/평이라면 3개월 임대료 = 15만원 × 200평 × 3개월 = <strong>9,000만원</strong>. 이 경우 TI 1억원이 더 유리합니다. 조건의 경제적 가치를 반드시 금액으로 환산해 비교하세요.</div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">주차 조건</div>
+    <ul class="checklist w2">
+      <li><span><strong>무료 주차 대수:</strong> 계약 면적 기준으로 일정 대수 무료 제공. 예: "임대면적 100평당 2대"</span></li>
+      <li><span><strong>유료 추가 주차:</strong> 무료 대수 초과 시 월정액 또는 입출차 건당 과금. 서울 도심 기준 월 20~30만원/대 수준</span></li>
+      <li><span><strong>방문객 주차:</strong> 1일 무료 시간, 상한 시간, 할인 조건 등. 외부 미팅이 잦은 업종에는 중요한 조건</span></li>
+      <li><span><strong>전기차 충전:</strong> 충전 기기 수·위치·이용 비용. 최근 임차인 요구사항으로 부상 중</span></li>
+    </ul>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">간판 및 기타 특약</div>
+    <ul class="checklist w2">
+      <li><span><strong>외부 간판권:</strong> 건물 외벽·옥상 간판 설치 가능 여부. 설치 비용 부담 주체도 협상 대상</span></li>
+      <li><span><strong>로비 안내판:</strong> 공용부 층별 안내판 위치·크기. 단순하지만 기업 이미지에 영향</span></li>
+      <li><span><strong>전용 출입구·동선:</strong> 독립 카드키 시스템, 별도 로비 출입 동선. VIP 고객이 많은 업종에서 중요</span></li>
+    </ul>
+  </div>
+
+  <!-- NOC -->
+  <div class="sub">
+    <div class="star-section-tag tag-accent">★ 협상 조건 종합 분석</div>
+    <div class="sub-title w2">NOC (Net Occupancy Cost) — 실질 점유 단가</div>
+    <p>
+      <strong>NOC(Net Occupancy Cost)</strong>는 임차인이 실제로 매월 부담하는 임대료와 관리비를 합산한 뒤, 전용면적으로 나눈 <strong>실질 점유 단가</strong>입니다.
+      건물마다 전용률이 다르기 때문에 임대면적 기준 임대료만으로는 비교가 정확하지 않습니다.
+    </p>
+    <p>실무에서 NOC는 활용 목적에 따라 두 가지로 나뉩니다.</p>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">구분</th><th class="th-w2">명목 NOC (Face NOC)</th><th class="th-w2">실질 NOC (Effective NOC)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>개념</strong></td>
+          <td>임대료·관리비만으로 계산한 기본 점유 단가</td>
+          <td>렌트프리·TI 등 협상 조건까지 반영한 실질 단가</td>
+        </tr>
+        <tr>
+          <td><strong>계산 시점</strong></td>
+          <td>건물 탐색 초기 — 협상 조건 확정 전에도 계산 가능</td>
+          <td>협상 조건 확정 후 — 렌트프리·TI가 결정된 뒤 계산</td>
+        </tr>
+        <tr>
+          <td><strong>활용 목적</strong></td>
+          <td>후보 빌딩 간 <strong>1차 비교·스크리닝</strong></td>
+          <td>임대인 제안의 실질 가치 검증, <strong>딜 클로징 단계 협상</strong></td>
+        </tr>
+        <tr>
+          <td><strong>실무 관행</strong></td>
+          <td>✅ 시장에서 통상 "NOC"라 하면 이 개념</td>
+          <td>고객과 협상하거나 건물 간 최종 비교 시 사용</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="sub-label">📐 명목 NOC (Face NOC)</div>
+    <div class="formula">
+      FNOC <span>=</span> ( <em>월 임대료</em> + 월 관리비 ) <span>÷</span> 전용면적<br>
+      <small>단위: 원/평/월 &nbsp;|&nbsp; 전용면적 기준이므로 전용률이 낮을수록 NOC가 높아짐</small>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2">조건 항목</th><th class="th-w2">값</th><th class="th-w2">비고</th></tr></thead>
+      <tbody>
+        <tr><td><strong>임대면적</strong></td><td>200평</td><td>계약 기준 면적</td></tr>
+        <tr><td><strong>전용면적</strong></td><td>130평</td><td>전용률 65%</td></tr>
+        <tr><td><strong>월 임대료</strong></td><td>600만 원</td><td>임대면적 기준 평당 3만 원</td></tr>
+        <tr><td><strong>월 관리비</strong></td><td>140만 원</td><td>임대면적 기준 평당 7천 원</td></tr>
+        <tr><td><strong>월 총 부담액</strong></td><td>740만 원</td><td>임대료 + 관리비</td></tr>
+        <tr><td><strong>Face NOC</strong></td><td class="td-w2">약 56,923원/평/월</td><td>740만 ÷ 130평</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="sub-label">📐 실질 NOC (Effective NOC)</div>
+    <div class="formula">
+      ENOC <span>=</span> ( <em>총 계약기간 임대료 납부액</em> − 임대인 혜택 총액(R/F,T/I 등) ) <span>÷</span> 계약기간(월) <span>÷</span> 전용면적<br>
+      <small>단위: 원/평/월 &nbsp;|&nbsp; 렌트프리·TI 등 협상 조건이 확정된 후에만 계산 가능</small>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2">조건 항목</th><th class="th-w2">값</th><th class="th-w2">비고</th></tr></thead>
+      <tbody>
+        <tr><td><strong>임대면적</strong></td><td>200평</td><td>계약 기준 면적</td></tr>
+        <tr><td><strong>전용면적</strong></td><td>130평</td><td>전용률 65%</td></tr>
+        <tr><td><strong>월 임대료 + 관리비</strong></td><td>740만 원</td><td>Face NOC 계산과 동일 조건</td></tr>
+        <tr><td><strong>계약기간</strong></td><td>36개월</td><td></td></tr>
+        <tr><td><strong>Rent Free</strong></td><td>3개월</td><td>절감액 = 740만 × 3 = 2,220만 원</td></tr>
+        <tr><td><strong>TI 수령액</strong></td><td>3,000만 원</td><td>현금 지급 기준</td></tr>
+        <tr><td><strong>총 납부액</strong></td><td>2억 4,420만 원</td><td>740만 × (36−3)개월</td></tr>
+        <tr><td><strong>실질 부담액</strong></td><td>2억 1,420만 원</td><td>2억 4,420만 − 3,000만(TI)</td></tr>
+        <tr><td><strong>Effective NOC</strong></td><td class="td-w2">약 54,923원/평/월</td><td>2억 1,420만 ÷ 36 ÷ 130평</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout callout-teal">
+      <div class="clabel">💡 Face NOC vs Effective NOC — 차이가 의미하는 것</div>
+      위 예시에서 Face NOC는 <strong>56,923원</strong>, Effective NOC는 <strong>54,923원</strong>으로 약 3.5% 차이가 납니다. 렌트프리·TI 조건이 클수록 이 차이는 벌어집니다. 고객에게 "이 건물이 실제로 얼마나 유리한지"를 설득할 때 Effective NOC 수치가 강력한 근거가 됩니다.
+    </div>
+    <div class="callout callout-point">
+      <div class="clabel">💡 건물 비교는 반드시 NOC 기준으로</div>
+      임대면적·임대료가 동일해도 전용률이 다르면 Face NOC가 달라집니다. 협상 조건까지 포함하면 Effective NOC는 더 크게 차이날 수 있습니다. 단순 임대료 숫자로 건물을 비교하는 것은 실무에서 가장 흔한 실수입니다.
+    </div>
+  </div>
+</section>
+
+<!-- ── S9 ── -->
+<section class="section" id="s9">
+  <div class="section-header w2">
+    <div class="section-num num-w2">3</div>
+    <h2 class="section-title">계약서 핵심 조항</h2>
+  </div>
+  <p>임대차 계약서는 수십 개 조항으로 구성되지만, <strong>실무에서 분쟁이 집중되는 조항</strong>은 크게 4가지입니다.</p>
+  <div class="sub">
+    <div class="sub-title w2">① 원상복구 의무</div>
+    <ul class="checklist w2">
+      <li><span><strong>복구 범위:</strong> "임차인이 시공한 전체"인지 "임대인 승인 공사 제외"인지 명확히 기재</span></li>
+      <li><span><strong>면제 조건:</strong> 임대인이 임차인의 인테리어를 다음 임차인에게도 활용하겠다고 합의한 경우 면제 가능</span></li>
+      <li><span><strong>비용 분쟁:</strong> 복구 단가를 누가, 어떻게 산정하느냐에 따라 수천만 원 차이. 제3자 감정 조항을 삽입하는 것이 유리</span></li>
+      <li><span><strong>TI와 연계:</strong> 임대인이 TI를 지원한 경우 해당 공사의 원상복구는 어떻게 처리하는지도 확인 필요</span></li>
+    </ul>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">② 중도해지권 (Break Option)</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">항목</th><th class="th-w2">내용</th><th class="th-w2">협상 포인트</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Break Option 유무</strong></td><td>임차인이 특정 시점(예: 3년차)에 계약 해지 가능</td><td>없으면 중도 해지 시 위약금 전액 부담. 삽입 요청이 중요</td></tr>
+        <tr><td><strong>사전 통보 기간</strong></td><td>해지 의사를 몇 개월 전에 통보해야 하는지</td><td>통상 6~12개월 전 서면 통보</td></tr>
+        <tr><td><strong>위약금</strong></td><td>중도 해지 시 지불해야 하는 금액</td><td>잔여 임대료 전액 vs 특정 개월분 합의</td></tr>
+        <tr><td><strong>인센티브 반환</strong></td><td>받은 Rent Free, TI를 상각·반환해야 하는지</td><td>반환 기준을 계약서에 명확히 표기해야 분쟁 방지 가능</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">③ 갱신권 (Renewal Option)</div>
+    <ul class="checklist w2">
+      <li><span><strong>우선갱신권:</strong> 제3자 조건보다 불리하지 않은 조건으로 갱신 계약 체결 가능. 임대인이 제3자에게 먼저 제안하는 것을 막을 수 있음</span></li>
+      <li><span><strong>갱신 통보 기한:</strong> 계약 만료 몇 개월 전에 갱신 의사를 밝혀야 하는지. 통상 만료 6개월 전</span></li>
+      <li><span><strong>갱신 임대료 산정:</strong> 시장가 재산정인지, 직전 임대료의 일정 % 인상인지 명확히 해야 함</span></li>
+      <li><span><strong>상가임대차보호법:</strong> 상가 임차인은 법정으로 10년 갱신 요구권 보장. 오피스(업무시설)에도 적용 여부 확인 필요</span></li>
+    </ul>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">④ 보증금</div>
+    <ul class="checklist w2">
+      <li><span><strong>반환 기한:</strong> 계약 종료 후 원상복구 완료 확인 후 몇 일 내 반환하는지 명시</span></li>
+      <li><span><strong>공제 항목:</strong> 임대인이 보증금에서 공제할 수 있는 항목(미납 임대료, 원상복구 비용 등) 한정 열거</span></li>
+      <li><span><strong>이자:</strong> 보증금에 대한 이자를 지급하는 경우는 드물지만, 장기 대형 계약에서 협상 가능</span></li>
+    </ul>
+  </div>
+  <div class="sub">
+    <div class="star-section-tag tag-accent">★ 실무 핵심 — 놓치면 큰 리스크</div>
+    <div class="sub-title w2">제소전화해 (提訴前和解)</div>
+    <p>계약 체결 시점에, 향후 분쟁이 생겼을 때의 해결 조건을 <strong>법원에 미리 신청해 확정</strong>해두는 제도입니다 (민사소송법 제385조). 확정되면 판결과 동일한 효력을 가지므로, 이후 분쟁 발생 시 별도 소송 없이 즉시 강제집행이 가능합니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">구분</th><th class="th-w2">내용</th></tr></thead>
+      <tbody>
+        <tr><td><strong>임대인 입장</strong></td><td>임차인이 임대료를 내지 않거나 퇴거를 거부할 경우, 소송 없이 <strong>즉시 강제집행</strong>(명도) 가능</td></tr>
+        <tr><td><strong>임차인 입장</strong></td><td>제소전화해에 합의하면 계약 위반 시 곧바로 강제집행 대상이 됨. 합의 조건을 신중히 검토해야 함</td></tr>
+        <tr><td><strong>화해 조서 내용</strong></td><td>임차인이 임대료를 OO개월 이상 연체하거나 계약 위반 시, 임대인에게 목적물을 명도한다는 내용이 핵심</td></tr>
+        <tr><td><strong>실무 추세</strong></td><td>Grade A 빌딩 임대차에서 표준 조항으로 자리잡는 추세. 계약서에 포함되어 있으면 임차인은 반드시 법무팀 검토 요청</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-warn"><div class="clabel">⚠️ 주의</div>제소전화해는 임대인에게 매우 강력한 무기입니다. 임차인 입장에서는 <strong>화해 조서에 명시된 위반 조건을 꼼꼼히 확인</strong>하고, 부당하게 넓은 위반 사유가 포함되지 않도록 협상해야 합니다.</div>
+  </div>
+</section>
+
+<!-- ── S10 ── -->
+<section class="section" id="s10">
+  <div class="section-header w2">
+    <div class="section-num num-w2">4</div>
+    <h2 class="section-title">LOI (임차 의향서) 구조</h2>
+  </div>
+  <p>LOI(Letter of Intent, 임차 의향서)는 <strong>본 계약 체결 전</strong>에 임차인이 임대인에게 임차 의향과 희망 조건을 담아 제출하는 문서입니다. 법적 구속력은 없지만, 양측이 서명하면 <strong>이후 협상의 기준선</strong>이 됩니다.</p>
+  <div class="sub">
+    <div class="sub-title w2">LOI의 역할과 특징</div>
+    <div class="cards">
+      <div class="card border-w2"><div class="card-icon">📋</div><div class="card-title">협상 기준선 설정</div><div class="card-desc">LOI에 기재된 조건이 본 계약 협상의 출발점이 됨. 조건이 구체적일수록 협상 우위 확보</div></div>
+      <div class="card border-w2"><div class="card-icon">🤝</div><div class="card-title">임대인 독점 협상</div><div class="card-desc">LOI 서명 후에는 임대인이 다른 잠재 임차인과 협상을 중단하는 것이 관례 (독점 협상 기간)</div></div>
+      <div class="card border-w2"><div class="card-icon">⚖️</div><div class="card-title">비구속적 합의</div><div class="card-desc">법적 구속력 없음. 단 "이 조건으로 합의"라는 신뢰를 주기 때문에 함부로 번복하면 신뢰 손상</div></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="sub-title w2">LOI 주요 기재 항목</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w2 col-md">항목</th><th class="th-w2">기재 내용 예시</th><th class="th-w2">중요도</th></tr></thead>
+      <tbody>
+        <tr><td><strong>임차 대상 정보</strong></td><td>소재지, 건물명, 해당 층, 용도 등</td><td>★★★</td></tr>
+        <tr><td><strong>임대/전용면적</strong></td><td>OO층 전체 OOO평</td><td>★★★</td></tr>
+        <tr><td><strong>임대료</strong></td><td>평당 OO만원/월 (VAT별도)</td><td>★★★</td></tr>
+        <tr><td><strong>관리비</strong></td><td>평당 OO만원/월 (VAT별도)</td><td>★★☆</td></tr>
+        <tr><td><strong>임대 기간</strong></td><td>O년 (20XX년 XX월 ~ 20XX년 XX월)</td><td>★★★</td></tr>
+        <tr><td><strong>Rent Free</strong></td><td>입주일로부터 O개월 (관리비 포함/별도)</td><td>★★★</td></tr>
+        <tr><td><strong>Fit-out 기간</strong></td><td>임대 개시 후 O개월 (공사 기간 임대료 면제)</td><td>★★★</td></tr>
+        <tr><td><strong>TI</strong></td><td>전용면적 기준 평당 OO만원 현금 지급</td><td>★★☆</td></tr>
+        <tr><td><strong>주차 조건</strong></td><td>무료 O대, 추가 시 월 OO만원</td><td>★★☆</td></tr>
+        <tr><td><strong>입주 희망일</strong></td><td>20XX년 XX월 XX일</td><td>★★★</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-point"><div class="clabel">💡 실무 포인트</div>패스트파이브 LOI 표준 양식은 그룹웨어 [새 결재 진행] > 결재양식에서 '임차의향서'를 검색하시면 확인하실 수 있습니다 😊</div>
+  </div>
+</section>
+
+<!-- ── S11 ── -->
+<section class="section" id="s11">
+  <div class="section-header w2">
+    <div class="section-num num-w2">5</div>
+    <h2 class="section-title">임대차 프로세스 Flow</h2>
+  </div>
+  <p>임대차 계약은 수요 파악부터 입주까지 <strong>통상 3~6개월 이상</strong>이 소요됩니다. 통상적인 기준이며 상황에 따라 소요 기간은 상이합니다.</p>
+  <div class="flow">
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 1</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">리드 컨택 및 니즈 파악(2~4주)</div><div class="flow-step-desc">임차인의 요구사항 정의 — 필요 면적(현재 인원 + 성장계획), 위치, 예산, 이전 희망일, 기능 요구사항(서버실, 보안시설, 회의실 수 등).</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 2</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">시장 조사 및 물건 탐색 (2~3주)</div><div class="flow-step-desc">후보 빌딩 리스트업, 공실 여부 확인, 초기 임대 조건 파악. 시장 내 공실 현황과 임대인의 협상 의지를 파악합니다.</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 3</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">현장 투어 (Building Tour) (1~2주)</div><div class="flow-step-desc">후보 빌딩 현장 방문 — 하드웨어 실사(층고·전기·공조·주차 등) + 임대인/관리사무소 미팅. 4주차에서 다루는 빌딩 실사 항목을 이 단계에서 체크합니다.</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 4</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">LOI 제출 및 협상 (1~3주)</div><div class="flow-step-desc">임차 의향서(LOI) 제출 → 임대인 검토 → 조건 조율. 임대료·Rent Free·TI·주차 조건 등 핵심 협상이 이루어지는 단계</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 5</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">본 계약 협상 (2~4주)</div><div class="flow-step-desc">법무팀 검토, 세부 조항 협의 — 원상복구·중도해지권·갱신권·제소전화해 등.</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 6</div><div class="flow-line fline-w2"></div></div><div class="flow-content"><div class="flow-step-title">계약 체결 (1주)</div><div class="flow-step-desc">계약서 서명, 보증금 납입, 제소전화해 신청(필요 시). 계약 체결 직후 관리사무소에 입주 통보 및 Fit-out 공사 일정 조율 시작.</div></div></div>
+    <div class="flow-step"><div class="flow-left"><div class="flow-badge badge-w2f">STEP 7</div></div><div class="flow-content"><div class="flow-step-title">Fit-out 공사 및 입주 (4~12주)</div><div class="flow-step-desc">인테리어 설계 → 시공 → 소방·건축 검사 → 입주. 공사 기간은 공간 규모와 공사 범위에 따라 차이가 크며, 대형 공사는 12주 이상 소요.</div></div></div>
+  </div>
+  <div class="callout callout-w2"><div class="clabel">💡 일정 관리 포인트</div>이전 예정일을 기준으로 <strong>역산 스케줄링</strong>이 필수입니다. 예: 이전일 12월 1일 → Fit-out 완료 11월 말 → 계약 체결 최소 8월 말 → LOI 협상 시작 7월 말.</div>
+</section>
+
+  <div class="ref-label">참고 자료</div>
+    <div class="ref-links">
+      <a href="https://smatch.kr/insight/posts/pre-trial-settlement?from=insight_main_list" target="_blank" class="ref-btn">(스매치 인사이트)제소전화해, 사무실 임대차계약 시 요구한다면?
+</a>
+     <br><a href="https://biz.chosun.com/real_estate/real_estate_general/2026/03/30/S2SPF5F2VZCJ3PK6NN7VWXXDIY/?utm_source=naver&utm_medium=original&utm_campaign=biz" target="_blank" class="ref-btn">(기사)기업들 이곳으로 다 모인다… 임대료 톱10 오피스 중 9곳 강남권</a>
+    </div>
+  </div>
+
+
+</main>
+</div>
+
+<script>
+  // 사이드바 스크롤 스파이
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.sb-item[href]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const a = document.querySelector(`.sb-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -65% 0px' });
+  sections.forEach(s => observer.observe(s));
+  navItems.forEach(n => {
+    n.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(n.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // 인터랙티브 체크리스트
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    el.querySelector('.ibox').textContent = el.classList.contains('checked') ? '✓' : '';
+    updateProgress();
+  }
+  function updateProgress() {
+    const total = document.querySelectorAll('#dueDiligenceList li').length;
+    const done  = document.querySelectorAll('#dueDiligenceList li.checked').length;
+    document.getElementById('progressLabel').textContent = done + ' / ' + total;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+  }
+</script>
+</body>
+</html>
