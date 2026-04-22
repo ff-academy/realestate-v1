@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Academy | 오피스 하드웨어 파악하기</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:        #1B3A5C;
+    --w1:          #1B5FA8;
+    --w1-light:    #D6E8F7;
+    --w2:          #1E6B4A;
+    --w2-light:    #D4EDDA;
+    --w3:          #6B2FA0;
+    --w3-light:    #EDE0F5;
+    --w4:          #0D6E8A;
+    --w4-light:    #D0EEF5;
+    --accent:      #E8A020;
+    --accent-light:#FDF3DC;
+    --teal:        #0D7A6B;
+    --teal-light:  #D4F0EB;
+    --red:         #B91C1C;
+    --red-light:   #FEF2F2;ㅇ
+    --bg:          #F4F6F8;
+    --white:       #FFFFFF;
+    --text:        #1E2532;
+    --text-soft:   #5A6172;
+    --border:      #DDE2EA;
+    --sidebar-w:   252px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 14px; }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+  .sb-brand { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .sb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+  .sb-title { font-size: 14px; font-weight: 800; color: #fff; line-height: 1.4; }
+  .sb-week-label { display: flex; align-items: center; gap: 8px; padding: 10px 20px 4px; color: rgba(255,255,255,.22); font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; margin-top: 6px; }
+  .sb-item { display: flex; align-items: center; gap: 10px; padding: 8px 20px; color: rgba(255,255,255,.55); font-size: 12.5px; cursor: pointer; border-left: 2px solid transparent; transition: all .15s; text-decoration: none; }
+  .sb-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .sb-item.active { color: #fff; background: rgba(255,255,255,.1); }
+  .sb-item.w4-item.active { border-left-color: #4EC4DC; }
+  .sb-chip { width: 20px; height: 20px; border-radius: 5px; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; color: rgba(255,255,255,.6); transition: all .15s; }
+  .sb-item.w4-item.active .sb-chip { background: var(--w4); color: #fff; }
+
+  /* ── MAIN ── */
+  .main { flex: 1; padding: 44px 56px 80px; max-width: 1060px; min-width: 0; }
+
+  /* ── HERO ── */
+  .week-hero { border-radius: 16px; padding: 40px; margin-bottom: 48px; position: relative; overflow: hidden; }
+  .week-hero::before { content: ''; position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.05); }
+  .week-hero::after  { content: ''; position: absolute; bottom: -30px; right: 80px; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.03); }
+  .hero-w4 { background: linear-gradient(135deg, #0A4A60 0%, #0D6E8A 60%, #0A5A72 100%); }
+  .hero-week-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
+  .week-hero h1 { color: #fff; font-size: 28px; font-weight: 900; margin-bottom: 8px; }
+  .week-hero p  { color: rgba(255,255,255,.8); font-size: 14px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+  .hero-chip  { padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.15); color: #fff; font-size: 12px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 68px; scroll-margin-top: 24px; opacity: 0; transform: translateY(14px); animation: fadeUp .4s ease forwards; }
+  .section:nth-child(1){animation-delay:.04s}.section:nth-child(2){animation-delay:.08s}
+  .section:nth-child(3){animation-delay:.12s}.section:nth-child(4){animation-delay:.16s}
+  .section:nth-child(5){animation-delay:.20s}.section:nth-child(6){animation-delay:.24s}
+  .section:nth-child(7){animation-delay:.28s}.section:nth-child(8){animation-delay:.32s}
+  @keyframes fadeUp { to { opacity:1; transform:none; } }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--w4-light); }
+  .section-num { width: 34px; height: 34px; border-radius: 50%; background: var(--w4); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+
+  /* ── SUB ── */
+  .sub { margin-bottom: 30px; }
+  .sub-title { font-size: 15px; font-weight: 700; color: var(--w4); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sub-title::before { content: ''; width: 3px; height: 15px; background: var(--w4); border-radius: 2px; flex-shrink: 0; }
+  .sub-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; }
+
+  p { font-size: 13.5px; color: #374151; line-height: 1.85; margin-bottom: 10px; }
+  p strong { color: var(--navy); }
+
+  /* ── CALLOUT ── */
+  .callout { border-radius: 8px; padding: 13px 16px; margin: 10px 0; font-size: 13px; line-height: 1.75; }
+  .callout .clabel { font-weight: 700; font-size: 11.5px; letter-spacing: .04em; margin-bottom: 4px; }
+  .callout-tip   { background: var(--w4-light);   border-left: 3px solid var(--w4);   color: #062E3D; }
+  .callout-tip   .clabel { color: var(--w4); }
+  .callout-warn  { background: var(--red-light);  border-left: 3px solid var(--red);  color: #7f1d1d; }
+  .callout-warn  .clabel { color: var(--red); }
+  .callout-point { background: var(--accent-light);border-left: 3px solid var(--accent);color: #5a3e00; }
+  .callout-point .clabel { color: var(--accent); }
+  .callout-teal  { background: var(--teal-light); border-left: 3px solid var(--teal); color: #064e3b; }
+  .callout-teal  .clabel { color: var(--teal); }
+  .callout-w4    { background: var(--w4-light);   border-left: 3px solid var(--w4);   color: #062E3D; }
+  .callout-w4    .clabel { color: var(--w4); }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .03em; white-space: nowrap; }
+  thead th.th-w4 { background: var(--w4); }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child  { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  tbody tr:hover { background: var(--w4-light); transition: background .12s; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; line-height: 1.7; }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--navy); }
+  .td-w4 { background: var(--w4-light) !important; font-weight: 600; color: var(--w4) !important; }
+  .col-sm { width: 110px; min-width: 110px; }
+  .col-md { width: 160px; min-width: 160px; }
+
+  /* ── KV CARDS ── */
+  .kv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin: 12px 0; }
+  .kv-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .kv-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-bottom: 5px; text-transform: uppercase; }
+  .kv-value { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .kv-desc  { font-size: 12px; color: var(--text-soft); line-height: 1.55; }
+  .kv-card.top-w4     { border-top: 3px solid var(--w4); }
+  .kv-card.top-accent { border-top: 3px solid var(--accent); }
+  .kv-card.top-red    { border-top: 3px solid var(--red); }
+  .kv-card.top-teal   { border-top: 3px solid var(--teal); }
+
+  /* ── CARDS ── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
+  .card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--w4); border-radius: 10px; padding: 16px; transition: box-shadow .15s, transform .15s; }
+  .card:hover { box-shadow: 0 4px 18px rgba(13,110,138,.12); transform: translateY(-2px); }
+  .card-icon  { font-size: 22px; margin-bottom: 8px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .card-desc  { font-size: 12px; color: var(--text-soft); line-height: 1.6; }
+
+  /* ── CHECKLIST ── */
+  ul.cl { list-style: none; margin: 8px 0; }
+  ul.cl li { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; font-size: 13.5px; color: #374151; border-bottom: 1px dashed #e5e7eb; line-height: 1.7; }
+  ul.cl li:last-child { border-bottom: none; }
+  ul.cl li::before { content: '✓'; width: 18px; height: 18px; flex-shrink: 0; background: var(--w4); color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-top: 3px; }
+  ul.cl li span { flex: 1; }
+  ul.cl.warn li::before { background: var(--red); content: '!'; }
+
+  /* ── INTERACTIVE CHECKLIST ── */
+  .icheck { list-style: none; margin: 10px 0; }
+  .icheck li { display: flex; align-items: flex-start; gap: 9px; padding: 8px 10px; font-size: 13.5px; color: #374151; border-bottom: 1px dashed #e5e7eb; border-radius: 6px; cursor: pointer; transition: background .12s; line-height: 1.7; }
+  .icheck li:last-child { border-bottom: none; }
+  .icheck li:hover { background: #f3f4f6; }
+  .icheck li.checked { background: var(--w4-light); color: #062E3D; }
+  .icheck .ibox { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 3px; transition: all .12s; }
+  .icheck li.checked .ibox { background: var(--w4); border-color: var(--w4); }
+  .icheck .stars { margin-left: auto; font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; padding-left: 8px; }
+  .progress-bar-wrap { margin-top: 14px; }
+  .progress-bar-wrap .pb-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-soft); margin-bottom: 5px; }
+  .progress-bar-track { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-bar-fill  { height: 100%; background: var(--w4); border-radius: 4px; transition: width .3s; }
+
+  /* ── CMP2 ── */
+  .cmp2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .cmp-card { border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .cmp-head { padding: 11px 16px; font-weight: 700; font-size: 14px; color: #fff; }
+  .cmp-body { padding: 12px 16px; }
+  .cmp-row  { display: flex; justify-content: space-between; font-size: 13px; padding: 5px 0; border-bottom: 1px dashed var(--border); gap: 8px; }
+  .cmp-row:last-child { border-bottom: none; }
+  .cmp-key  { color: var(--text-soft); flex-shrink: 0; }
+  .cmp-val  { font-weight: 600; color: var(--text); text-align: right; }
+
+  /* ── STAR TAG ── */
+  .star-section-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .tag-w4     { background: var(--w4-light); color: var(--w4); }
+  .tag-accent { background: var(--accent-light); color: #7A4800; }
+  .tag-warn   { background: var(--red-light); color: var(--red); }
+
+  /* ── REF LINKS ── */
+  .ref-links { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 4px; }
+  .ref-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; background: #fff; border: 1.5px solid var(--w4); border-radius: 6px; color: var(--w4); font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; line-height: 1.4; }
+  .ref-btn::before { content: '📰'; font-size: 12px; }
+  .ref-btn:hover { background: var(--w4); color: #fff; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(13,110,138,.18); }
+  .ref-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .ref-label::before { content: ''; display: inline-block; width: 3px; height: 12px; background: var(--text-soft); border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .week-hero { padding: 32px 24px; }
+    .week-hero h1 { font-size: 22px; }
+    .cmp2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">FF Academy</div>
+    <div class="sb-title">Level 1-3. 오피스 하드웨어 파악하기</div>
+  </div>
+  <div class="sb-week-label">목차</div>
+  <a class="sb-item w4-item" href="#s0"><span class="sb-chip">0</span>현장 투어 체크 프레임</a>
+  <a class="sb-item w4-item" href="#s1"><span class="sb-chip">1</span>건축 구조</a>
+  <a class="sb-item w4-item" href="#s2"><span class="sb-chip">2</span>설비 및 인프라</a>
+  <a class="sb-item w4-item" href="#s3"><span class="sb-chip">3</span>주차 & 수직 이동</a>
+  <a class="sb-item w4-item" href="#s4"><span class="sb-chip">4</span>통신 인프라</a>
+  <a class="sb-item w4-item" href="#s5"><span class="sb-chip">5</span>법적 요구사항</a>
+  <a class="sb-item w4-item" href="#s6"><span class="sb-chip">6</span>현장 투어 체크리스트</a>
+</nav>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+<div class="week-hero hero-w4" style="margin-bottom:48px;">
+  <div class="hero-week-tag">WEEK 4</div>
+  <h1>빌딩 실사 & 하드웨어 체크</h1>
+  <p>현장 투어에서 놓치면 안 되는 것들 — 구조·설비·주차·통신·법규까지</p>
+  <div class="hero-chips">
+    <span class="hero-chip">코어 구조</span>
+    <span class="hero-chip">층고 & 하중</span>
+    <span class="hero-chip">공조 & 전기</span>
+    <span class="hero-chip">주차 구조</span>
+    <span class="hero-chip">승강기</span>
+    <span class="hero-chip">통신 인프라</span>
+    <span class="hero-chip">소방 & 피난</span>
+    <span class="hero-chip">현장 체크리스트</span>
+  </div>
+</div>
+
+<!-- ── S0 : 현장 투어 프레임 ── -->
+<section class="section" id="s0">
+  <div class="section-header">
+    <div class="section-num">0</div>
+    <h2 class="section-title">현장 투어를 보는 프레임</h2>
+  </div>
+  <p>이 주차의 내용은 단순한 건축 지식이 아닙니다. <strong>오피스 세일즈 현장 투어에서 직접 눈으로 확인하고, 관리사무소에 물어봐야 할 항목들</strong>입니다. 실무 담당자는 이 항목들을 먼저 파악해 고객에게 설명할 수 있어야 하고, 문제가 있는 항목은 협상 카드로 활용할 수 있어야 합니다.</p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🏗️</div>
+      <div class="card-title">건축 구조</div>
+      <div class="card-desc">코어 위치, 층고, 하중, 기둥 간격. 실제 사용 가능한 공간의 효율을 결정합니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">설비 & 인프라</div>
+      <div class="card-desc">공조 방식, 전기 용량, 이중바닥. 입주 후 추가 비용 발생 여부를 사전에 파악합니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🚗</div>
+      <div class="card-title">주차 & 이동</div>
+      <div class="card-desc">주차 구조, 승강기 대수·용량. 직원 출퇴근과 이사 시 실질적인 불편을 좌우합니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📡</div>
+      <div class="card-title">통신 인프라</div>
+      <div class="card-desc">광케이블 인입, 회선 사업자 수. IT 의존도가 높은 임차인에게는 핵심 조건입니다.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <div class="card-title">법적 요구사항</div>
+      <div class="card-desc">소방·피난·장애인 편의. 인허가·영업 조건에 영향을 주는 항목입니다.</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ── S1 : 건축 구조 ── -->
+<section class="section" id="s1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2 class="section-title">건축 구조</h2>
+  </div>
+  <p>코어(Core)는 엘리베이터·비상계단·화장실·전기실·통신실이 집약된 건물의 중심 설비 공간입니다. 전용률 숫자가 같아도 <strong>코어 위치와 기둥 구조에 따라 실제 쓸 수 있는 공간의 질이 크게 달라집니다.</strong></p>
+
+  <div class="sub">
+    <div class="sub-title">코어(Core) 구조와 공간 효율</div>
+    <p>코어란 엘리베이터·계단·화장실·설비실 등이 집약된 건물의 중심 구조물입니다. 코어의 위치에 따라 업무 공간의 활용도가 달라집니다.</p>
+    <div class="cmp2">
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:var(--w4);">중심 코어 (Center Core)</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">코어 위치</span><span class="cmp-val">층 중앙</span></div>
+          <div class="cmp-row"><span class="cmp-key">업무공간</span><span class="cmp-val">코어 외곽을 둘러쌈</span></div>
+          <div class="cmp-row"><span class="cmp-key">채광</span><span class="cmp-val">외곽 전면 채광 유리</span></div>
+          <div class="cmp-row"><span class="cmp-key">특징</span><span class="cmp-val">이용자의 보행거리 평균화, 관리비 효율</span></div>
+          <div class="cmp-row"><span class="cmp-key">대표 사례</span><span class="cmp-val">과거 A급 오피스 대부분</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:#5A6172;">편심 코어 (Side Core)</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">코어 위치</span><span class="cmp-val">층 한쪽 끝</span></div>
+          <div class="cmp-row"><span class="cmp-key">업무공간</span><span class="cmp-val">코어 반대편에 집중</span></div>
+          <div class="cmp-row"><span class="cmp-key">채광</span><span class="cmp-val">한쪽 면 채광 집중</span></div>
+          <div class="cmp-row"><span class="cmp-key">특징</span><span class="cmp-val">공간 효율 극대화</span></div>
+          <div class="cmp-row"><span class="cmp-key">대표 사례</span><span class="cmp-val">중소형 빌딩, 신흥 프라임 오피스</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-tip">
+     <div class="clabel"> 💡대형 라운지가 있는 공유오피스에 적합한 구조는?</div>
+     '편심 코어(사이드 코어)'가 가장 선호됩니다. 복도로 버려지는 Dead Space가 적고, 시원하게 트인 메인 라운지와 미팅룸을 연속해서 배치하기 좋기 때문입니다.
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">층고 (Floor Height)</div>
+    <p>층고는 바닥 슬래브에서 천장 슬래브까지의 높이입니다. 실제 임차인이 체감하는 높이는 <strong>마감 천장고</strong>로, 층고에서 설비 공간을 뺀 수치입니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w4 col-md">구분</th><th class="th-w4">정의</th><th class="th-w4">특징</th></tr></thead>
+      <tbody>
+        <tr><td><strong>층고</strong></td><td>해당 층 바닥 슬래브 상단 ~ 위층 바닥 슬래브 상단까지의 거리</td><td>통상 3.9~4.5m</td></tr>
+        <tr><td><strong>천장고</strong></td><td>바닥 마감면 ~ 마감 천장 하단까지의 높이로 실제 체감하는 높이. 층고에서 공조·배관 등 설비를 차감한 높이.</td><td>통상 2.7~3.2m</td></tr>
+        <tr><td><strong>무량판 구조(Flat Plate)</strong></td><td>보(Beam) 없이 슬래브가 기둥에 직접 연결되는 구조. 층고 확보에 유리하고 자유로운 공간 분할 가능
+</td><td>트렌디한 사무 환경 연출 가능. 소음·먼지 관리 필요</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-tip">
+      <div class="clabel">💡건물을 구할때, 층고가 높은 건물이 좋은거 아닌가요?</div>
+      층고가 높은 건물은 개방감이 뛰어나서 라운지에는 적합하지만, 일반 업무공간의 경우 냉난방 효율 / 인테리어 공사비 / 소음등의 이유로 무조건 좋은건 아닙니다. 적당한(업무공간은 3.3~3.5M) 층고가 가장 좋습니다. 
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">바닥 하중 (Floor Load)</div>
+    <p>바닥이 단위 면적당 버틸 수 있는 무게입니다. 일반 사무용 집기는 문제없지만 <strong>서버실·금고·아카이브룸·중장비</strong> 등 하중이 집중되는 용도라면 반드시 확인해야 합니다.</p>
+    <div class="kv-grid">
+      <div class="kv-card top-w4">
+        <div class="kv-label" style="color:var(--w4)">일반 사무 공간</div>
+        <div class="kv-value" style="color:var(--w4)">250~500<small style="font-size:13px"> kg/㎡</small></div>
+        <div class="kv-desc">표준 사무 집기·인원 수용. 대부분의 오피스 충족</div>
+      </div>
+      <div class="kv-card top-accent">
+        <div class="kv-label" style="color:var(--accent)">서버실·전산실</div>
+        <div class="kv-value" style="color:var(--accent)">500~1,000<small style="font-size:13px"> kg/㎡</small></div>
+        <div class="kv-desc">서버+네트워크 장비 포함한 서버랙 1대 무게 3~700kg</div>
+      </div>
+      <div class="kv-card top-red">
+        <div class="kv-label" style="color:var(--red)">금고·중장비</div>
+        <div class="kv-value" style="color:var(--red)">1,000<small style="font-size:13px"> kg/㎡ +</small></div>
+        <div class="kv-desc">구조 검토 필수. 저층부 또는 별도 설계 공간에 배치</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">외벽 시스템</div>
+    <ul class="cl">
+      <li><span><strong>커튼월 (Curtain Wall):</strong> 건물 외벽 전체가 유리 패널로 구성된 시스템. 채광이 좋고 미관이 우수하지만, 여름 복사열·겨울 단열 성능 확인 필요</span></li>
+      <li><span><strong>창호 개폐 여부:</strong> 커튼월 빌딩은 대부분 창문 개폐 불가. 공조 의존도가 높아지므로 공조 시스템 품질이 더 중요해짐</span></li>
+      <li><span><strong>로이유리(Low-E Glass):</strong>'Low Emissivity Glass'의 줄임말로, 낮은 방사율을 가진 유리. 유리 표면에 특수 금속 산화물 코팅을 입혀 열 전달을 최소화함. 여름에 외부 열을 차단하고 겨울에 내부 열을 보존함.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── S2 : 설비 및 인프라 ── -->
+<section class="section" id="s2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2 class="section-title">설비 및 인프라</h2>
+  </div>
+  <p>설비는 눈에 잘 보이지 않지만 <strong>입주 후 운영 비용과 업무 환경에 직접 영향</strong>을 미칩니다.</p>
+
+  <div class="sub">
+    <div class="sub-title">냉난방 & 공조 시스템</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w4 col-md">구분</th><th class="th-w4">방식</th><th class="th-w4">임차인 관점 체크포인트</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>중앙공조</strong></td>
+          <td>건물 전체를 하나의 시스템으로 냉난방. 관리비에 포함되어 안분 청구</td>
+          <td>운영 시간 제한 여부 확인. 야간·주말 연장 사용 시 추가 비용 발생 가능</td>
+        </tr>
+        <tr>
+          <td><strong>개별공조 (EHP)</strong></td>
+          <td>각 임차인이 별도 에어컨 유닛 운영. 전기 사용량 개별 계량</td>
+          <td>실외기 설치 공간 확보 여부. 전기 용량 충분한지 확인 필요</td>
+        </tr>
+        <tr>
+          <td><strong>혼합형</strong></td>
+          <td>중앙공조 기본 + 개별 보조 유닛 병행</td>
+          <td>공용 시간 외 개별 운영 가능 여부 및 비용 구조 확인</td>
+        </tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-warn">
+      <div class="clabel">⚠️ 공조 운영 시간 반드시 확인</div>
+      중앙공조 빌딩은 통상 업무 시간 중에만 가동됩니다. 야간·주말 근무가 잦은 업종은 <strong>연장 운영 비용(시간당 과금)</strong>을 확인하는 것이 좋습니다.
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">전기 용량 및 인입</div>
+    <p>전기 용량은 IT 장비·조명·공조 등 모든 전력 사용의 총량입니다. 부족하면 <strong>별도 인입 공사</strong>가 필요하고 비용이 크게 발생합니다.</p>
+    <ul class="cl">
+      <li><span><strong>일반 사무 업무:</strong> 50~80W/㎡, 표준PC·조명·공조 기준 </span></li>
+      <li><span><strong>고전력 수요 업종:</strong> 100~300+ W/㎡, IT·서버·의료장비 등 건물 인입 용량 확인 필요</span></li>
+      <li><span><strong>증설 가능 여부:</strong> 전기 용량 부족 시 한전과의 증설 계약 가능 여부, 소요 기간, 비용 부담 주체를 확인합니다. </span></li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Raised Floor (이중바닥) & 통합 배선</div>
+    <p>오피스 바닥을 걸을 때 통통 소리가 나는 이유입니다. 프라임급 오피스일 경우 설치가 필수입니다.</p>
+    <ul class="cl">
+      <li><span><strong>이중바닥 (Raised Floor):</strong> 바닥 슬래브 위에 별도 바닥판을 설치해 그 아래 공간에 전선·통신 케이블을 배선하는 방식. 레이아웃 변경 시 배선 이동이 용이</span></li>
+      <li><span><strong>이중바닥 높이:</strong> 통상 10~15cm. 높을수록 배선 여유 공간이 크지만, 실제 마감 천장고가 그만큼 낮아짐</span></li>
+      <li><span><strong>통합 배선 시스템 (Structured Cabling):</strong> 전화·LAN·전력을 하나의 배선 체계로 관리. 없으면 Fit-out 시 별도 배선 공사 비용 발생</span></li>
+      <li><span><strong>BMS (Building Management System):</strong> 냉난방·전력·조명·보안 등 건물 설비를 통합 관제하는 시스템. A급 빌딩에는 대부분 탑재. 임차인은 세부 작동 방식보다 <strong>공조 원격 제어 가능 여부</strong>만 확인하면 충분</span></li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">BMS (Building Management System, 빌딩관리시스템)</div>
+    <p>건물 내 전기·공조·소방·보안·엘리베이터 등 <strong>모든 설비를 통합 모니터링</strong>하고 제어하는 시스템입니다.</p>
+    <ul class="cl">
+      <li><span><strong>기능:</strong> 실시간 에너지 사용 모니터링, 설비 고장 즉시 알림, 공조·조명 자동 최적화, 보안 통합 관제</span></li>
+      <li><span><strong>임차인 혜택: </strong> BMS가 고도화된 건물일수록 관리비 절감 효과와 빠른 AS 대응 가능</span></li>
+      <li><span><strong>ESG 경영:</strong> 기업의 탄소 중립 보고서 작성 시 BMS 데이터가 기초 자료로 활용. 최근 대기업·외국계 기업이 BMS 데이터 제공 여부를 입주 조건으로 요구하는 사례 증가</span></li>
+
+
+    </ul>
+  </div>
+</section>
+
+<!-- ── S3 : 주차 & 승강기 ── -->
+<section class="section" id="s3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2 class="section-title">주차 & 수직 이동</h2>
+  </div>
+  <p>주차와 승강기는 임직원의 일상 출퇴근과 방문객 응대에 직결됩니다. <strong>계약서에 명시된 조건 외에 실제 운영 현실을 현장에서 반드시 확인</strong>해야 합니다.</p>
+
+  <div class="sub">
+    <div class="sub-title">주차 구조</div>
+    <div class="cmp2">
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:var(--w4);">자주식 주차</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">방식</span><span class="cmp-val">운전자가 직접 주차</span></div>
+          <div class="cmp-row"><span class="cmp-key">편의성</span><span class="cmp-val">높음 — 즉시 출입 가능</span></div>
+          <div class="cmp-row"><span class="cmp-key">차량 크기</span><span class="cmp-val">SUV·대형차 제한 없음</span></div>
+          <div class="cmp-row"><span class="cmp-key">이사·화물</span><span class="cmp-val">화물차 진입 가능 여부 확인</span></div>
+        </div>
+      </div>
+      <div class="cmp-card">
+        <div class="cmp-head" style="background:#5A6172;">기계식 주차</div>
+        <div class="cmp-body">
+          <div class="cmp-row"><span class="cmp-key">방식</span><span class="cmp-val">기계가 차량을 이동·적재</span></div>
+          <div class="cmp-row"><span class="cmp-key">편의성</span><span class="cmp-val">낮음 — 대기 시간 발생</span></div>
+          <div class="cmp-row"><span class="cmp-key">차량 크기</span><span class="cmp-val">높이·무게 제한 있음</span></div>
+          <div class="cmp-row"><span class="cmp-key">유지보수</span><span class="cmp-val">고장 시 이용 불가 위험</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="sub-label">📍 주차 현장 확인 항목</div>
+    <ul class="cl">
+      <li><span><strong>층별 높이 제한:</strong> 기계식 주차는 차량 높이 1.55~1.8m 제한이 일반적. SUV·미니밴 소유자 많은 팀은 필수 확인</span></li>
+      <li><span><strong>출퇴근 피크 대기 시간:</strong> 오전 9시, 오후 6~7시 기계식 대기 시간 실측 권장</span></li>
+      <li><span><strong>화물차·이삿짐 차량 진입:</strong> 이사 시 2.5톤 이상 차량 진입 가능 여부. 진입 불가 시 이사 비용 급증</span></li>
+      <li><span><strong>전기차 충전기:</strong> 충전 가능 대수·위치·요금. 임직원 전기차 비율이 높아지는 추세</span></li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">승강기 (엘리베이터)</div>
+    <p>승강기는 대규모 입주 시 <strong>출퇴근 혼잡도와 방문객 경험</strong>에 직결됩니다. 대수·속도·용량을 종합적으로 확인해야 합니다.</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w4 col-md">항목</th><th class="th-w4">확인 내용</th><th class="th-w4">실무 포인트</th></tr></thead>
+      <tbody>
+        <tr><td><strong>승객용 대수</strong></td><td>일반적으로 연면적 3,000~5,000㎡당 1대</td><td>입주 인원 대비 대수가 부족하면 피크타임 대기 5~10분 발생</td></tr>
+        <tr><td><strong>속도 & 용량</strong></td><td>속도: 분속 90~150m / 용량: 900~1,350kg (13~20인)</td><td>고층 빌딩일수록 속도가 중요. 용량은 이사 가구 반입에도 영향</td></tr>
+        <tr><td><strong>화물용 엘리베이터</strong></td><td>별도 화물 전용 엘리베이터 유무</td><td>없으면 이사·납품 시 승객용 엘리베이터 점유로 민원 발생</td></tr>
+        <tr><td><strong>전용 서비스 동선</strong></td><td>VIP·보안 구역용 별도 엘리베이터</td><td>금융·법무·보안 업종에서 중요한 조건</td></tr>
+      </tbody>
+    </table></div>
+    <div class="callout callout-tip">
+      <div class="clabel">💡 이사 가능 여부 확인</div>
+      화물용 엘리베이터가 없거나 크기가 작으면, 대형 가구·서버 랙 반입 시 별도 크레인 사용이 필요해져 이사 비용이 크게 올라갈 수 있습니다.
+    </div>
+  </div>
+</section>
+
+<!-- ── S4 : 통신 인프라 ── -->
+<section class="section" id="s4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2 class="section-title">통신 인프라</h2>
+  </div>
+  <p>IT 의존도가 높은 기업일수록 통신 인프라는 임대 조건만큼 중요합니다. <strong>계약 후 발견하면 해결 비용이 크기 때문에</strong> 투어 단계에서 확인하면 좋습니다.</p>
+
+  <div class="sub">
+    <div class="sub-title">광케이블 인입 & 인터넷 회선</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w4 col-md">항목</th><th class="th-w4">확인 내용</th><th class="th-w4">체크포인트</th></tr></thead>
+      <tbody>
+        <tr><td><strong>광케이블 인입 여부</strong></td><td>건물에 광케이블이 직접 인입되어 있는지</td><td>없으면 인입 공사 필요. 공사 기간·비용·인입 가능 여부 확인</td></tr>
+        <tr><td><strong>인터넷 회선 사업자 수</strong></td><td>KT, SK, LG 등 복수 사업자 선택 가능 여부</td><td>단일 사업자 독점 빌딩은 가격 협상력 낮음. 장애 시 대안도 없음</td></tr>
+        <tr><td><strong>전용선 vs 공유선</strong></td><td>빌딩 내 회선을 임차인들이 공유하는지</td><td>공유 방식이면 피크타임 속도 저하 발생 가능</td></tr>
+        <tr><td><strong>통신실 위치 & 접근성</strong></td><td>MDF(Main Distribution Frame) 실 위치</td><td>임차층과 통신실 거리가 멀수록 배선 비용 증가</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">보안 & 출입 시스템</div>
+    <ul class="cl">
+      <li><span><strong>CCTV & 보안 구역:</strong> 공용부 CCTV 설치 범위. 금융·법무·연구소 등 보안 민감 업종은 전용 보안 구역 구성 가능 여부 확인</span></li>
+      <li><span><strong>24시간 보안 인력:</strong> 야간·주말 상주 경비 여부. 없으면 자체 보안 비용 추가 발생</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── S5 : 법적 요구사항 ── -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2 class="section-title">법적 요구사항</h2>
+  </div>
+  <p>건물을 임차하고 인테리어 공사를 진행할 때 반드시 준수해야 하는 법적 요건들입니다. 위반 시 시정 명령, 사용 제한, 이행강제금 등 행정 처분이 따를 수 있습니다.</p>
+
+  <div class="sub">
+    <div class="sub-title">소방 & 피난 계획</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th class="th-w4 col-md">항목</th><th class="th-w4">내용</th><th class="th-w4">인테리어 시 주의사항</th></tr></thead>
+      <tbody>
+        <tr><td><strong>스프링클러</strong></td><td>자동 소화 설비. 소방시설법에 따라 6층 이상 또는 연면적 1,000㎡ 이상 의무 설치(건축물 용도에 따라 상이)</td><td>칸막이 공사·천장 변경 등 인테리어 시 스프링클러 이설 여부 확인, 소방공사업체를 통한 도면 검토 필수</td></tr>
+        <tr><td><strong>피난 계단 & 비상구</strong></td><td>2방향 피난 원칙. 층별 비상구 위치</td><td>피난 경로를 막거나 좁히는 인테리어는 절대 불가. 계약 위반이자 소방법 위반</td></tr>
+        <tr><td><strong>비상조명 & 유도등</strong></td><td>정전 시 피난 경로 조명 의무</td><td>천장 인테리어 후에도 유도등 기능 유지 필수. 가림·철거 불가</td></tr>
+        <tr><td><strong>소방 완비증명서</strong></td><td>소방 시설이 법적 기준을 충족한다는 증명</td><td>입주 전 발급 여부 확인. 미발급 시 영업 허가 취득 불가</td></tr>
+        <tr><td><strong>방화구획</strong></td><td>화재 확산 차단을 위한 구역 분리 설비</td><td>대형 오픈플로어 구성 시 방화구획 변경 인허가 필요 여부 확인</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">장애인 편의 시설</div>
+    <p>「장애인·노인·임산부 등의 편의증진 보장에 관한 법률」에 따라 일정 규모 이상 건물은 편의시설 설치가 의무입니다.</p>
+    <ul class="cl">
+      <li><span><strong>장애인 주차구역:</strong> 전체 주차 대수의 2~4% 의무 설치. 위치·수량 확인</span></li>
+      <li><span><strong>장애인용 엘리베이터:</strong> 점자 버튼, 음성 안내 장치 구비 여부</span></li>
+      <li><span><strong>화장실 접근성:</strong> 장애인 화장실 층별 설치 여부. 없으면 Fit-out 시 설치 의무 발생 가능</span></li>
+      <li><span><strong>경사로 & 출입구:</strong> 출입구 단차 제거, 경사로 설치 여부</span></li>
+    </ul>
+    <div class="callout callout-warn">
+      <div class="clabel">⚠️ 업종별 추가 법적 요건</div>
+      의료기관·어린이집·음식점 등 특수 업종은 일반 오피스 기준 외에 <strong>별도 인허가 요건</strong>이 붙습니다. 계약 전 해당 업종의 인허가 담당 부서 또는 전문가 확인을 권장합니다.
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">용도지역 & 건물 용도</div>
+    <ul class="cl">
+      <li><span><strong>건물 용도:</strong> 업무시설(오피스)로 등재되어 있는지 확인. 근린생활시설로 등재된 경우 일부 업종 입주 제한 가능</span></li>
+      <li><span><strong>용적률·건폐율 여유:</strong> 증축·리모델링 계획이 있는 빌딩은 법적 한도 여유 확인</span></li>
+      <li><span><strong>지구단위계획 제한:</strong> 일부 지역은 간판 크기·외관 변경이 제한됨. 사인(Signage) 계획이 있는 임차인은 사전 확인 필요</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ── S6 : 현장 투어 체크리스트 ── -->
+<section class="section" id="s6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <h2 class="section-title">현장 투어 체크리스트</h2>
+  </div>
+  <p>오피스 현장을 방문할 때 아래 항목들을 확인해보세요.</p>
+
+  <div class="sub-label">🏗️ 건축 구조</div>
+  <ul class="icheck" id="checkList1">
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>코어 위치 및 크기 확인 (센터/사이드)</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>마감 천장고 직접 실측 (슬래브 기준 아닌 마감 기준)</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>기둥 위치 및 간격 확인 — Dead Space 유발 여부</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>바닥 하중 스펙 확인 (서버실·금고 계획 시 필수)</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>창호 개폐 여부 및 단열 성능 확인</span><span class="stars">★☆☆</span></li>
+  </ul>
+
+  <div class="sub-label" style="margin-top:20px;">⚙️ 설비 & 인프라</div>
+  <ul class="icheck" id="checkList2">
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>공조 방식 (중앙/개별) 및 운영 시간·연장 비용 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>전용 전기 용량 확인 및 증설 가능 여부 문의</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>비상 발전기 커버 범위 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>이중바닥 유무 및 높이 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>공조 원격 제어 (BMS) 가능 여부</span><span class="stars">★☆☆</span></li>
+  </ul>
+
+  <div class="sub-label" style="margin-top:20px;">🚗 주차 & 승강기</div>
+  <ul class="icheck" id="checkList3">
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>주차 방식 (자주식/기계식) 및 차량 높이 제한 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>화물차·이삿짐 차량 진입 가능 여부 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>전기차 충전기 대수·위치 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>승객용 엘리베이터 대수·속도 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>화물용 엘리베이터 유무 및 내부 치수 확인</span><span class="stars">★★★</span></li>
+  </ul>
+
+  <div class="sub-label" style="margin-top:20px;">📡 통신 & 보안</div>
+  <ul class="icheck" id="checkList4">
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>광케이블 인입 여부 및 회선 사업자 수 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>전용선 vs 공유 회선 방식 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>층별 카드키 독립 여부 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>24시간 보안 인력 상주 여부</span><span class="stars">★★☆</span></li>
+  </ul>
+
+  <div class="sub-label" style="margin-top:20px;">📋 법적 요구사항</div>
+  <ul class="icheck" id="checkList5">
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>소방 완비증명서 발급 여부 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>건물 용도 (업무시설/근린생활시설) 확인</span><span class="stars">★★★</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>스프링클러 이설 비용 부담 주체 확인</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>장애인 편의 시설 법적 기준 충족 여부</span><span class="stars">★★☆</span></li>
+    <li onclick="toggleCheck(this)"><div class="ibox"></div><span>간판·외관 변경 지구단위계획 제한 여부</span><span class="stars">★☆☆</span></li>
+  </ul>
+
+  <div class="progress-bar-wrap" style="margin-top:20px;">
+    <div class="pb-label">
+      <span>진행률</span>
+      <span id="progressLabel">0 / 24</span>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="callout callout-teal" style="margin-top:16px;">
+    <div class="clabel">📌 관리사무소에 사전 요청할 자료</div>
+    현장 방문 전 아래 자료를 미리 요청하면 투어 효율이 올라갑니다.<br>
+    <strong>전기 용량 도면 · 전년도 관리비 실적 · 소방 완비증명서 · 주차 운영 규정 · 광케이블 인입 확인서</strong>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+  // 사이드바 스크롤 스파이
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.sb-item[href]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const a = document.querySelector(`.sb-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -65% 0px' });
+  sections.forEach(s => observer.observe(s));
+  navItems.forEach(n => {
+    n.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(n.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // 체크리스트
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    el.querySelector('.ibox').textContent = el.classList.contains('checked') ? '✓' : '';
+    updateProgress();
+  }
+  function updateProgress() {
+    const total = document.querySelectorAll('.icheck li').length;
+    const done  = document.querySelectorAll('.icheck li.checked').length;
+    document.getElementById('progressLabel').textContent = done + ' / ' + total;
+    document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+  }
+</script>
+</body>
+</html>
