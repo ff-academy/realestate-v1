@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BQPSJ6G8KE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BQPSJ6G8KE');
+</script>
+  
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FF Academy | 오피스 하드웨어 파악하기</title>
@@ -22,7 +32,7 @@
     --teal:        #0D7A6B;
     --teal-light:  #D4F0EB;
     --red:         #B91C1C;
-    --red-light:   #FEF2F2;ㅇ
+    --red-light:   #FEF2F2;
     --bg:          #F4F6F8;
     --white:       #FFFFFF;
     --text:        #1E2532;
@@ -174,7 +184,11 @@
   .tag-accent { background: var(--accent-light); color: #7A4800; }
   .tag-warn   { background: var(--red-light); color: var(--red); }
 
-  /* ── REF LINKS ── */
+    /* ── IMAGE ── */
+  img.content-img      { width: 60%; border-radius: 12px; margin: 10px 0; display: block; }
+  img.content-img-wide { width: 70%; }
+
+    /* ── REF LINKS ── */
   .ref-links { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 4px; }
   .ref-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; background: #fff; border: 1.5px solid var(--w4); border-radius: 6px; color: var(--w4); font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; line-height: 1.4; }
   .ref-btn::before { content: '📰'; font-size: 12px; }
@@ -314,10 +328,11 @@
       <tbody>
         <tr><td><strong>층고</strong></td><td>해당 층 바닥 슬래브 상단 ~ 위층 바닥 슬래브 상단까지의 거리</td><td>통상 3.9~4.5m</td></tr>
         <tr><td><strong>천장고</strong></td><td>바닥 마감면 ~ 마감 천장 하단까지의 높이로 실제 체감하는 높이. 층고에서 공조·배관 등 설비를 차감한 높이.</td><td>통상 2.7~3.2m</td></tr>
-        <tr><td><strong>무량판 구조(Flat Plate)</strong></td><td>보(Beam) 없이 슬래브가 기둥에 직접 연결되는 구조. 층고 확보에 유리하고 자유로운 공간 분할 가능
-</td><td>트렌디한 사무 환경 연출 가능. 소음·먼지 관리 필요</td></tr>
+        <tr><td><strong>무량판 구조</strong></td><td>보(Beam) 없이 슬래브가 기둥에 직접 연결되는 구조. 층고 확보에 유리하고 자유로운 공간 분할 가능</td><td>트렌디한 사무 환경 연출 가능. 소음·먼지 관리 필요</td></tr>
       </tbody>
     </table></div>
+    <img src="week4_1.png" width="35%">
+    <img src="week4_2.png" >
     <div class="callout callout-tip">
       <div class="clabel">💡건물을 구할때, 층고가 높은 건물이 좋은거 아닌가요?</div>
       층고가 높은 건물은 개방감이 뛰어나서 라운지에는 적합하지만, 일반 업무공간의 경우 냉난방 효율 / 인테리어 공사비 / 소음등의 이유로 무조건 좋은건 아닙니다. 적당한(업무공간은 3.3~3.5M) 층고가 가장 좋습니다. 
