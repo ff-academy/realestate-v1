@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Academy | 6주차 · 서울 오피스 시장 구조</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:        #1B3A2D;
+    --w:           #1A7A4A;
+    --w-light:     #D4EFE1;
+    --w-mid:       #1F6B45;
+    --accent:      #E8A020;
+    --accent-light:#FDF3DC;
+    --teal:        #0D7A6B;
+    --teal-light:  #D4F0EB;
+    --red:         #B91C1C;
+    --red-light:   #FEF2F2;
+    --bg:          #F4F6F8;
+    --white:       #FFFFFF;
+    --text:        #1E2532;
+    --text-soft:   #5A6172;
+    --border:      #DDE2EA;
+    --sidebar-w:   248px;
+    --shadow:      0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 14px;
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+
+  .sb-brand {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+  }
+  .sb-eyebrow {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+  }
+  .sb-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.4; }
+  .sb-sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 4px; line-height: 1.5; }
+
+  .sb-week-badge {
+    margin: 14px 20px 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; background: var(--w);
+    border-radius: 6px; font-size: 11px; font-weight: 700;
+    color: #fff; letter-spacing: .04em;
+  }
+
+  .sb-nav-label {
+    padding: 18px 20px 4px; font-size: 9px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(255,255,255,.22);
+  }
+
+  .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px; color: rgba(255,255,255,.55);
+    font-size: 12.5px; cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all .15s; text-decoration: none;
+  }
+  .sb-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .sb-item.active {
+    color: #fff; background: rgba(255,255,255,.1);
+    border-left-color: #6AE6A4;
+  }
+  .sb-chip {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+    color: rgba(255,255,255,.6); transition: all .15s;
+  }
+  .sb-item.active .sb-chip { background: var(--w); color: #fff; }
+
+  /* MAIN */
+  .main { flex: 1; padding: 44px 56px 80px; max-width: 960px; min-width: 0; }
+
+  /* WEEK HERO */
+  .week-hero {
+    border-radius: 16px; padding: 48px 40px; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #1B3A2D 0%, #1A7A4A 60%, #1F6B45 100%);
+  }
+  .week-hero::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: rgba(255,255,255,.05);
+  }
+  .week-hero::after {
+    content: ''; position: absolute; bottom: -40px; right: 80px;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,.03);
+  }
+  .hero-week-tag {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    background: rgba(255,255,255,.15); color: rgba(255,255,255,.9);
+    font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .week-hero h1 { color: #fff; font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+  .week-hero p  { color: rgba(255,255,255,.8); font-size: 14px; }
+  .hero-chips   { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .hero-chip {
+    padding: 5px 13px; border-radius: 20px;
+    background: rgba(255,255,255,.14);
+    color: #fff; font-size: 12px; font-weight: 500;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 60px; scroll-margin-top: 24px;
+    opacity: 0; transform: translateY(14px);
+    animation: fadeUp .4s ease forwards;
+  }
+  .section:nth-child(2){animation-delay:.05s}
+  .section:nth-child(3){animation-delay:.10s}
+  .section:nth-child(4){animation-delay:.15s}
+  .section:nth-child(5){animation-delay:.19s}
+  @keyframes fadeUp { to { opacity:1; transform:none; } }
+
+  .section-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 22px; padding-bottom: 14px;
+    border-bottom: 2px solid var(--w-light);
+  }
+  .section-num {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--w); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+
+  .sub { margin-bottom: 28px; }
+  .sub-title {
+    font-size: 15px; font-weight: 700; color: var(--w);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .sub-title::before {
+    content: ''; width: 3px; height: 15px; background: var(--w);
+    border-radius: 2px; flex-shrink: 0;
+  }
+  .sub-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    color: var(--text-soft); text-transform: uppercase;
+    margin: 14px 0 6px;
+  }
+
+  p { font-size: 13.5px; color: #374151; line-height: 1.85; margin-bottom: 10px; }
+  p strong { color: var(--navy); }
+  .hl { background: #fffbeb; border-bottom: 2px solid #fde68a; font-weight: 600; padding: 0 2px; }
+
+  /* CALLOUT */
+  .callout {
+    border-radius: 8px; padding: 13px 16px;
+    margin: 10px 0; font-size: 13px; line-height: 1.75;
+  }
+  .callout .clabel { font-weight: 700; font-size: 11.5px; letter-spacing: .04em; margin-bottom: 4px; }
+  .callout-tip  { background: var(--w-light);    border-left: 3px solid var(--w);      color: #0D2E1A; }
+  .callout-tip  .clabel { color: var(--w); }
+  .callout-warn { background: var(--red-light);  border-left: 3px solid var(--red);    color: #7f1d1d; }
+  .callout-warn .clabel { color: var(--red); }
+  .callout-point{ background: var(--accent-light);border-left: 3px solid var(--accent);color: #5a3e00; }
+  .callout-point .clabel { color: var(--accent); }
+  .callout-teal { background: var(--teal-light); border-left: 3px solid var(--teal);  color: #064e3b; }
+  .callout-teal .clabel { color: var(--teal); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--navy); color: #fff;
+    padding: 10px 14px; text-align: left;
+    font-weight: 600; font-size: 12px; letter-spacing: .03em;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child  { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  tbody tr:hover { background: var(--w-light); transition: background .12s; }
+  tbody td {
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+    color: #374151; vertical-align: top; line-height: 1.7;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--navy); }
+
+  /* FORMULA */
+  .formula {
+    background: var(--navy); color: #a7f3c8;
+    padding: 16px 22px; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    text-align: center; margin: 12px 0; line-height: 1.9;
+  }
+  .formula span { color: #6ee7b7; }
+  .formula em   { color: #fde68a; font-style: normal; }
+  .formula small { font-size: 13px; opacity: .75; font-weight: 400; font-family: 'Noto Sans KR', sans-serif; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 12px 0; }
+  .card {
+    background: var(--white); border: 1px solid var(--border);
+    border-top: 3px solid var(--w);
+    border-radius: 10px; padding: 16px;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .card:hover { box-shadow: 0 4px 18px rgba(26,122,74,.12); transform: translateY(-2px); }
+  .card-icon  { font-size: 22px; margin-bottom: 8px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .card-desc  { font-size: 12px; color: var(--text-soft); line-height: 1.6; }
+
+  /* GRADE CARDS */
+  .grade-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0; }
+  .grade-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px; position: relative;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .grade-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.1); transform: translateY(-2px); }
+  .grade-badge {
+    display: inline-block; font-size: 11px; font-weight: 800;
+    padding: 3px 10px; border-radius: 12px; margin-bottom: 10px; letter-spacing: .04em;
+  }
+  .grade-prime .grade-badge { background: #4C1D95; color: #EDE9FE; }
+  .grade-a     .grade-badge { background: #1A7A4A; color: #D4EFE1; }
+  .grade-b     .grade-badge { background: #92400E; color: #FEF3C7; }
+  .grade-c     .grade-badge { background: #374151; color: #F3F4F6; }
+  .grade-card h4 { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .grade-card p { font-size: 12px; color: var(--text-soft); line-height: 1.6; margin: 0; }
+  .grade-bar { height: 3px; border-radius: 2px; margin-bottom: 10px; }
+  .grade-prime .grade-bar { background: #7C3AED; }
+  .grade-a     .grade-bar { background: #1A7A4A; }
+  .grade-b     .grade-bar { background: #D97706; }
+  .grade-c     .grade-bar { background: #9CA3AF; }
+
+  /* REGION CARDS */
+  .region-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 14px 0; }
+  .region-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; transition: box-shadow .15s;
+  }
+  .region-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  .region-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .region-icon { font-size: 24px; }
+  .region-name { font-size: 15px; font-weight: 800; color: var(--navy); }
+  .region-loc  { font-size: 11px; color: var(--text-soft); font-weight: 500; margin-top: 1px; }
+  .region-tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .rtag {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600;
+  }
+  .rtag-cbd  { background: #DBEAFE; color: #1E40AF; }
+  .rtag-gbd  { background: #EDE9FE; color: #5B21B6; }
+  .rtag-ybd  { background: #FEF3C7; color: #92400E; }
+  .rtag-new  { background: #D1FAE5; color: #065F46; }
+  .rtag-warn { background: #FEE2E2; color: #991B1B; }
+  .region-card ul { list-style: none; }
+  .region-card ul li {
+    font-size: 12.5px; color: #374151; padding: 5px 0;
+    border-bottom: 1px dashed #e5e7eb; line-height: 1.65;
+    display: flex; align-items: flex-start; gap: 7px;
+  }
+  .region-card ul li:last-child { border-bottom: none; }
+  .region-card ul li::before {
+    content: '·'; color: var(--w); font-weight: 700;
+    font-size: 16px; margin-top: -2px; flex-shrink: 0;
+  }
+  .region-kpi { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .kpi-box {
+    flex: 1; min-width: 70px; background: var(--bg);
+    border-radius: 7px; padding: 7px 10px; text-align: center;
+  }
+  .kpi-label { font-size: 10px; color: var(--text-soft); margin-bottom: 2px; }
+  .kpi-value { font-size: 13px; font-weight: 800; color: var(--navy); }
+
+  /* MARKET DATA */
+  .market-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .mc-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .mc-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; }
+  .mc-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #e5e7eb; font-size: 12.5px; }
+  .mc-row:last-child { border-bottom: none; }
+  .mc-key { color: var(--text-soft); }
+  .mc-val { font-weight: 700; color: var(--navy); }
+
+  /* FF MAPPING */
+  .ff-map {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden; margin: 14px 0;
+  }
+  .ff-map-header {
+    background: var(--navy); color: #fff;
+    padding: 10px 16px; font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  }
+  .ff-map-body { padding: 16px; }
+  .ff-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .ff-row:last-child { border-bottom: none; }
+  .ff-region-badge {
+    flex-shrink: 0; width: 52px; text-align: center;
+    font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 6px;
+  }
+  .ff-cbd  { background: #DBEAFE; color: #1E40AF; }
+  .ff-gbd  { background: #EDE9FE; color: #5B21B6; }
+  .ff-ybd  { background: #FEF3C7; color: #92400E; }
+  .ff-new  { background: #D1FAE5; color: #065F46; }
+  .ff-branches { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ff-chip {
+    font-size: 12px; padding: 3px 10px;
+    background: var(--w-light); color: var(--w-mid);
+    border-radius: 20px; font-weight: 600;
+  }
+  .ff-note { font-size: 11px; color: var(--text-soft); margin-top: 4px; }
+
+  /* REPORT READING */
+  .report-steps { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+  .report-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--w); color: #fff;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-content h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .step-content p { font-size: 12.5px; color: var(--text-soft); margin: 0; line-height: 1.65; }
+
+  /* CHECKLIST */
+  ul.cl { list-style: none; margin: 8px 0; }
+  ul.cl li {
+    display: flex; align-items: flex-start; gap: 9px;
+    padding: 7px 0; font-size: 13.5px; color: #374151;
+    border-bottom: 1px dashed #e5e7eb; line-height: 1.7;
+  }
+  ul.cl li:last-child { border-bottom: none; }
+  ul.cl li::before {
+    content: '✓'; width: 18px; height: 18px; flex-shrink: 0;
+    background: var(--w); color: #fff; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; margin-top: 3px;
+  }
+  ul.cl.warn li::before { background: var(--red); content: '!'; }
+  ul.cl.teal li::before { background: var(--teal); }
+
+  /* LINK BUTTONS */
+  .lbtn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; background: var(--w); color: #fff;
+    border-radius: 6px; font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: all .15s; margin: 3px 3px 3px 0;
+  }
+  .lbtn:hover { background: #145C38; filter: brightness(1.1); transform: translateY(-1px); }
+  .lbtn-outline {
+    background: transparent; color: var(--w);
+    border: 1.5px solid var(--w); padding: 3px 11px;
+  }
+  .lbtn-outline:hover { background: var(--w-light); }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .week-hero { padding: 32px 24px; }
+    .week-hero h1 { font-size: 24px; }
+    .grade-grid { grid-template-columns: repeat(2, 1fr); }
+    .region-grid { grid-template-columns: 1fr; }
+    .market-compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">FF Academy</div>
+    <div class="sb-title">Level 2-1. <br>서울 오피스 시장 구조</div>
+  </div>
+  <div class="sb-nav-label">목차</div>
+  <a class="sb-item active" href="#s1"><span class="sb-chip">1</span>건물 등급 분류</a>
+  <a class="sb-item"        href="#s2"><span class="sb-chip">2</span>마켓 데이터 읽기</a>
+  <a class="sb-item"        href="#s3"><span class="sb-chip">3</span>주요 권역 분석</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <div class="week-hero">
+    <div class="hero-week-tag">WEEK 6</div>
+    <h1>서울 오피스 시장 구조</h1>
+    <p>건물 등급부터 권역별 특성, 시장 데이터 읽는 법까지 — 오피스 시장을 숫자로 보는 눈을 기릅니다</p>
+    <div class="hero-chips">
+      <span class="hero-chip">건물 등급 (Prime/A/B/C)</span>
+      <span class="hero-chip">공실률·임대료 지수</span>
+      <span class="hero-chip">CBD·GBD·YBD</span>
+      <span class="hero-chip">신흥 권역</span>
+    </div>
+  </div>
+
+  <!-- ── 01 ── -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2 class="section-title">건물 등급 분류</h2>
+    </div>
+
+    <p>오피스 빌딩은 <strong>품질·규모·위치·임차인 수준</strong>에 따라 등급을 나눕니다. 등급이 중요한 이유는 단순히 건물을 분류하기 위해서가 아닙니다.<br> <strong>임대료 수준, 테넌트(임차인) 유형, 공실률, 거래 유동성</strong>이 모두 등급과 연동되기 때문입니다.</p>
+    <p>쉽게 말해 <span class="hl">호텔 별점</span>과 같습니다. 5성 호텔이 비싸도 항상 손님이 있듯이, Prime 빌딩은 임대료가 높아도 대기 임차인이 줄 서 있습니다. <br>반대로 C등급 건물은 가격이 낮아도 공실 리스크가 높고 임차인 교체가 잦습니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">통상적인 등급별 기준</div>
+      <div class="grade-grid">
+        <div class="grade-card grade-prime">
+          <div class="grade-bar"></div>
+          <div class="grade-badge">PRIME</div>
+          <h4>최상위 클래스</h4>
+          <p>연면적 3만㎡ 이상, 준공 15년 이내, 커튼월 외관, 최상급 설비. 외국계 대기업·글로벌 금융사 입주. 파르나스타워, FKI타워, GFC 등</p>
+        </div>
+        <div class="grade-card grade-a">
+          <div class="grade-bar"></div>
+          <div class="grade-badge">A등급</div>
+          <h4>권역 대표 오피스</h4>
+          <p>연면적 1만㎡ 이상, 권역 내 인지도 높은 건물. 대기업 본사·전문직 집중. 스펙은 Prime급이나 위치·규모에서 한 단계 아래</p>
+        </div>
+        <div class="grade-card grade-b">
+          <div class="grade-bar"></div>
+          <div class="grade-badge">B등급</div>
+          <h4>중소형 업무빌딩</h4>
+          <p>중소규모·준공 15년 이상 다수. 중견기업·스타트업 선호. 임대료 메리트 있음. 리모델링 이력 있으면 시설 수준 개선 가능</p>
+        </div>
+        <div class="grade-card grade-c">
+          <div class="grade-bar"></div>
+          <div class="grade-badge">C등급</div>
+          <h4>노후·소규모 빌딩</h4>
+          <p>소규모·노후 건물. 가격 민감 임차인 위주. 공실 리스크 높고 임차인 이탈 잦음. 재건축·리모델링 후보</p>
+        </div>
+      </div>
+
+      <div class="callout callout-tip">
+        <div class="clabel">📌 등급의 실질적 기준</div>
+        공식적으로 통일된 등급 기준은 없습니다. CBRE, JLL, 쿠시먼앤드웨이크필드 등 각 자문사가 자체 기준을 씁니다. 공통적으로 보는 요소는 <strong>연면적·준공연도·외관 스펙·임차인 수준·위치</strong>입니다. 동일 건물도 자문사마다 등급이 다르게 분류될 수 있으니, 리포트 읽을 때 해당 자문사 기준을 먼저 확인하세요.
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">등급과 임대료·공실률의 관계</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>등급</th><th>임대료 수준</th><th>공실률 경향</th><th>주요 임차인</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Prime</strong></td><td>최고 (3.3㎡당 10만원+)</td><td>매우 낮음 (1~3%)</td><td>글로벌 기업·금융사</td></tr>
+            <tr><td><strong>A등급</strong></td><td>높음 (7~10만원)</td><td>낮음 (3~6%)</td><td>대기업·전문직</td></tr>
+            <tr><td><strong>B등급</strong></td><td>중간 (4~7만원)</td><td>보통 (5~10%)</td><td>중견·스타트업</td></tr>
+            <tr><td><strong>C등급</strong></td><td>낮음 (~4만원)</td><td>높음 (10%+)</td><td>소기업·개인사업자</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-point">
+        <div class="clabel">💡 패스트파이브 연결</div>
+        패스트파이브는 주로 <strong>A~B등급 건물에 임차 후 Prime급 경험을 제공</strong>하는 포지셔닝입니다. 임차인 입장에서 "B급 건물을 Prime처럼" 경험하게 만드는 것이 공유오피스 상품의 핵심 가치 중 하나입니다. 영업 과정에서 고객이 "이 건물 몇 등급이에요?"라고 물으면 바로 대답할 수 있어야 합니다.
+      </div>
+      <p><a href="https://pdf.savills.asia/asia-pacific-research/korea-research/korea-office-briefing/2026-q1-seoul-prime-office-ko.pdf" target="_blank" class="lbtn">📄 세빌스코리아 - 서울 프라임 오피스 - Q1/2026
+</a></p>
+    </div>
+  </section>
+
+  <!-- ── 02 ── -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2 class="section-title">마켓 데이터 읽기</h2>
+    </div>
+
+    <p>CBRE, JLL, 쿠시먼앤드웨이크필드 같은 글로벌 자문사들은 분기마다 <strong>오피스 마켓 리포트</strong>를 발행합니다. 이 리포트에는 오피스 시장의 건강 상태를 보여주는 핵심 지표들이 담겨 있습니다. 마치 기상청의 날씨 예보처럼, 시장 온도계 역할을 합니다.</p>
+    <br>
+
+    <div class="sub">
+      <div class="sub-title">핵심 지표 ① — 공실률 (Vacancy Rate)</div>
+      <div class="formula">
+        공실률(%) <span>=</span> ( <em>임대 가능 면적 중 비어있는 면적</em> ÷ 전체 임대 가능 면적 ) × 100
+      </div>
+      <p>전체 오피스 공간 중 임차인이 없는 비율입니다. <strong>GBD 공실률 2%</strong>라는 건 100개 방 중 98개가 채워져 있다는 뜻입니다. 공실률이 낮을수록 임대인이 협상에서 유리하고, 높을수록 임차인이 더 좋은 조건을 요구할 수 있습니다.</p>
+         <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>공실률 구간</th><th>시장 성격</th><th>임대 협상 양상</th><th>패스트파이브 영향</th></tr></thead>
+          <tbody>
+            <tr><td><strong>0~5%</strong></td><td>초과 수요 (임대인 우위)</td><td>Rent Free 거의 없음, 임대료 상승 압박</td><td>신규 입점 조건 불리, 기존 계약 갱신 주의</td></tr>
+            <tr><td><strong>5~10%</strong></td><td>균형 시장</td><td>표준 조건, 소폭 인센티브 가능</td><td>일반적 협상 가능 구간</td></tr>
+            <tr><td><strong>10~15%</strong></td><td>공급 과잉 (임차인 우위)</td><td>Rent Free 3~6개월, TI 지원 등 인센티브 확대</td><td>좋은 조건으로 신규 입점 협상 가능</td></tr>
+            <tr><td><strong>15%+</strong></td><td>시장 침체</td><td>대폭 인센티브, 임대료 실질 하락</td><td>입점 조건 최적이나 건물 질·안정성 점검 필요</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="callout callout-point">
+      <div class="clabel">💡 공실률 0%가 무조건 좋을까? '자연공실률'의 비밀</div>
+        <strong>자연공실률(Natural Vacancy Rate)</strong>이란 시장이 정상적으로 작동할 때 자연스럽게 발생하는 공실 수준입니다.
+        임차인 이동, 리모델링, 계약 공백 등으로 항상 어느 정도 빈 공간은 존재할 수 밖에 없거든요. 서울 오피스 시장 기준으로 보통 <strong>5% 내외</strong>를 자연공실률로 봅니다.
+        <br>
+          <ul style="list-style:none; margin:0; padding:0;">
+          <li style="padding: 4px 0; padding-left: 14px; position:relative; font-size:13px; color:#5a3e00;">
+            <span style="position:absolute; left:0; color:var(--accent); font-weight:700;">·</span>
+            <strong>5% 미만</strong> — 공급보다 수요가 압도적인 '임대인 우위 시장' (임대료 상승 가능성 높음)
+          </li>
+          <li style="padding: 4px 0; padding-left: 14px; position:relative; font-size:13px; color:#5a3e00;">
+            <span style="position:absolute; left:0; color:var(--accent); font-weight:700;">·</span>
+            <strong>5% 초과</strong> — 공급이 넘치거나 수요가 위축된 '임차인 우위 시장' (렌트프리 등 혜택 증가)
+          </li>
+          <li style="padding: 4px 0; padding-left: 14px; position:relative; font-size:13px; color:#5a3e00;">
+            <span style="position:absolute; left:0; color:var(--accent); font-weight:700;">·</span>
+            <strong>현시점 서울</strong> — 주요 권역은 극도로 낮은 공실률을 기록 중. 자연공실률을 한참 밑도는 매우 뜨거운 시장
+          </li>
+        </ul>
+     </div>
+     <br>
+
+    <div class="sub">
+      <div class="sub-title">핵심 지표 ② — 임대료: Face Rent vs Effective Rent</div>
+      <div class="market-compare">
+        <div class="mc-card">
+          <div class="mc-title">📢 명목 임대료 (Face Rent)</div>
+          <div class="mc-row"><span class="mc-key">개념</span><span class="mc-val">건물주가 제시하는 가격</span></div>
+          <div class="mc-row"><span class="mc-key">표기</span><span class="mc-val">3.3㎡당 월 X만원</span></div>
+          <div class="mc-row"><span class="mc-key">특징</span><span class="mc-val">인센티브 미반영</span></div>
+          <div class="mc-row"><span class="mc-key">비유</span><span class="mc-val">정찰가 붙은 쇼룸 가격</span></div>
+        </div>
+        <div class="mc-card">
+          <div class="mc-title">💰 실질 임대료 (Effective Rent)</div>
+          <div class="mc-row"><span class="mc-key">개념</span><span class="mc-val">인센티브 반영한 실제 가격</span></div>
+          <div class="mc-row"><span class="mc-key">계산</span><span class="mc-val">Face Rent - Rent Free 환산액 - TI 환산액</span></div>
+          <div class="mc-row"><span class="mc-key">특징</span><span class="mc-val">실제 부담 비용</span></div>
+          <div class="mc-row"><span class="mc-key">비유</span><span class="mc-val">할인·쿠폰 적용 후 결제 금액</span></div>
+        </div>
+      </div>
+      <div class="callout callout-warn">
+        <div class="clabel">⚠️ 왜 두 숫자의 차이가 중요한가?</div>
+        공실률이 높은 시장에서는 건물주가 <strong>Face Rent는 유지</strong>하면서 Rent Free나 TI로 실질 가격을 내리는 경우가 많습니다. 표면상 임대료가 변하지 않아 보여도 실제 부담은 줄어드는 것입니다. 반대로 공실률이 낮으면 두 숫자의 격차가 거의 없습니다. 리포트에서 두 지표를 함께 봐야 시장을 정확히 읽을 수 있습니다. (상세 개념은 3주차 임대차 구조 복습)
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">리포트 읽는 순서</div>
+      <p>자문사 리포트를 처음 보면 분량에 압도됩니다. 전부 읽으려 하지 말고 <strong>아래 순서</strong>로만 훑으면 핵심을 30분 안에 파악할 수 있습니다.</p>
+      <div class="report-steps">
+        <div class="report-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>커버 요약 (Executive Summary)</h4>
+            <p>리포트 앞 1~2페이지. "이번 분기 시장의 3줄 요약"이 있습니다. 여기만 읽어도 큰 흐름이 보입니다.</p>
+          </div>
+        </div>
+        <div class="report-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>권역별 공실률 테이블</h4>
+            <p>CBD·GBD·YBD 각각의 공실률이 지난 분기 대비 올랐는지 내렸는지를 확인합니다. 방향이 중요합니다.</p>
+          </div>
+        </div>
+        <div class="report-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>임대료 추이 차트</h4>
+            <p>Face Rent와 Effective Rent의 격차 변화를 봅니다. 격차가 커지면 임차인 시장, 줄어들면 임대인 시장입니다.</p>
+          </div>
+        </div>
+        <div class="report-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>신규 공급 예정 물량</h4>
+            <p>향후 1~2년 내 새로 공급될 오피스 면적. 공급이 많으면 공실률 상승, 적으면 하락 신호입니다.</p>
+          </div>
+        </div>
+        <div class="report-step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>주요 딜(Deal) 사례</h4>
+            <p>이번 분기 어떤 기업이 어느 건물에 얼마나 입주했는지 확인. 시장 수요층의 성격을 파악할 수 있습니다.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout callout-teal">
+        <div class="clabel">✅ 액션 포인트</div>
+        CBRE 또는 JLL 등 부동산 자문사에서 발행하는 최신 분기 리포트를 다운로드해, 위 5단계 순서로 읽어보세요. GBD와 CBD의 공실률·임대료 수치를 비교해 한 줄로 정리해보세요.
+      </div>
+      <p><a href="https://www.cbrekorea.com/insights/figures/seoul-figures-q1-2026-%EA%B5%AD%EB%AC%B8-" target="_blank" class="lbtn">📄 CBRE - Seoul Figures Q1 2026</a> <a href="https://blog.genstarmate.com/category/office/" target="_blank" class="lbtn lbtn-outline">📄 젠스타메이트 - Office Research</a></p>
+    </div>
+  </section>
+
+  <!-- ── 03 ── -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2 class="section-title">주요 권역 분석</h2>
+    </div>
+
+    <p>서울 오피스 시장은 크게 세 개의 <strong>전통 3대 권역(CBD·GBD·YBD)</strong>과 빠르게 성장 중인 <strong>신흥 권역</strong>으로 나뉩니다. 각 권역은 입주하는 산업군·임대료 수준·공실률·건물 연령이 모두 다릅니다. <span class="hl">"왜 이 회사는 강남에 있고, 저 회사는 여의도에 있는가?"</span>를 설명할 수 있어야 합니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">3대 권역 + 신흥 권역 비교</div>
+      <div class="region-grid">
+
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-icon">🏛️</div>
+            <div>
+              <div class="region-name">CBD — 도심권</div>
+              <div class="region-loc">종로·을지로·광화문·시청</div>
+            </div>
+          </div>
+          <div class="region-tag-row">
+            <span class="rtag rtag-cbd">외국계</span>
+            <span class="rtag rtag-cbd">대기업 본사</span>
+            <span class="rtag rtag-cbd">공공기관</span>
+            <span class="rtag rtag-cbd">전통 강자</span>
+          </div>
+          <ul>
+            <li>서울 최고(最古)의 업무 중심지. 역사적 배경으로 외국계 기업·대사관·공공기관이 밀집</li>
+            <li>지하철 1·2·3·5호선 환승 가능, 교통 접근성 최고 수준</li>
+            <li>신축 공급 면적이 제한적 — 용지 부족, 문화재 인근 높이 규제</li>
+            <li>대표 건물: 그랑 서울, 광화문 D타워, 센터원, 시그니처타워</li>
+          </ul>
+          <div class="region-kpi">
+            <div class="kpi-box"><div class="kpi-label">공실률 경향</div><div class="kpi-value">보통</div></div>
+            <div class="kpi-box"><div class="kpi-label">임대료 수준</div><div class="kpi-value">높음</div></div>
+            <div class="kpi-box"><div class="kpi-label">신규 공급</div><div class="kpi-value">제한적</div></div>
+          </div>
+        </div>
+
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-icon">💜</div>
+            <div>
+              <div class="region-name">GBD — 강남권</div>
+              <div class="region-loc">테헤란로·역삼·선릉·삼성</div>
+            </div>
+          </div>
+          <div class="region-tag-row">
+            <span class="rtag rtag-gbd">IT·스타트업</span>
+            <span class="rtag rtag-gbd">전문직</span>
+            <span class="rtag rtag-gbd">최저 공실률</span>
+          </div>
+          <ul>
+            <li>글로벌IT·스타트업·테크기업·게임사 집중</li>
+            <li>3대 권역 중 가장 낮은 공실률 — 수요가 공급을 지속 초과</li>
+            <li>임대료 최고 수준이지만 브랜드 가치와 인재 확보 이유로 수요 꾸준</li>
+            <li>대표 건물: GFC, 아셈타워, 파르나스타워, 센터필드</li>
+          </ul>
+          <div class="region-kpi">
+            <div class="kpi-box"><div class="kpi-label">공실률 경향</div><div class="kpi-value">매우 낮음</div></div>
+            <div class="kpi-box"><div class="kpi-label">임대료 수준</div><div class="kpi-value">최고</div></div>
+            <div class="kpi-box"><div class="kpi-label">신규 공급</div><div class="kpi-value">부족</div></div>
+          </div>
+        </div>
+
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-icon">💛</div>
+            <div>
+              <div class="region-name">YBD — 여의도권</div>
+              <div class="region-loc">여의도 전역</div>
+            </div>
+          </div>
+          <div class="region-tag-row">
+            <span class="rtag rtag-ybd">금융·증권</span>
+            <span class="rtag rtag-ybd">미디어</span>
+            <span class="rtag rtag-ybd">신축 공급 활발</span>
+          </div>
+          <ul>
+            <li>국내 주요 금융사·증권사·보험사 본사 집중 (한국투자증권, KB증권 등)</li>
+            <li>국회의사당 인근으로 로비·PR 기능 기업 선호</li>
+            <li>파크원 등 대형 신축 공급으로 공실률 상대적 높음 — 임차인에게 유리한 시장</li>
+            <li>대표 건물: 파크원, IFC서울, 여의도 스퀘어, 전경련회관</li>
+          </ul>
+          <div class="region-kpi">
+            <div class="kpi-box"><div class="kpi-label">공실률 경향</div><div class="kpi-value">높음</div></div>
+            <div class="kpi-box"><div class="kpi-label">임대료 수준</div><div class="kpi-value">중간</div></div>
+            <div class="kpi-box"><div class="kpi-label">신규 공급</div><div class="kpi-value">활발</div></div>
+          </div>
+        </div>
+
+        <div class="region-card">
+          <div class="region-header">
+            <div class="region-icon">🌿</div>
+            <div>
+              <div class="region-name">신흥 권역</div>
+              <div class="region-loc">판교·성수·한남·마곡 등</div>
+            </div>
+          </div>
+          <div class="region-tag-row">
+            <span class="rtag rtag-new">스타트업</span>
+            <span class="rtag rtag-new">IT R&amp;D</span>
+            <span class="rtag rtag-new">브랜드·미디어</span>
+            <span class="rtag rtag-new">임대료 갭</span>
+          </div>
+          <ul>
+            <li><strong>판교</strong>: 2010년대 IT 대기업 R&amp;D 이전 (카카오, 네이버, 크래프톤 등). 경기 남부 인재 접근성</li>
+            <li><strong>성수</strong>: 유니콘 기업과 패션·뷰티 스타트업에서 선호. 특유의 힙한 문화로 MZ 인재 유인</li>
+            <li><strong>한남·마곡</strong>: 한남은 고급 주거지 연계된 자산관리 및 명품 브랜드 오피스, 마곡은 대기업 연구소 중심의 R&D 클러스터로 성장</li>
+            <li>전통 권역 대비 임대료 갭 → 성장형 스타트업에게 매력적이며 특정 산업군의 클러스터를 형성하며 기존 권역과는 차별화된 독립적 가치 창출중</li>
+          </ul>
+          <div class="region-kpi">
+            <div class="kpi-box"><div class="kpi-label">공실률 경향</div><div class="kpi-value">지역별 상이</div></div>
+            <div class="kpi-box"><div class="kpi-label">임대료 수준</div><div class="kpi-value">낮음~중간</div></div>
+            <div class="kpi-box"><div class="kpi-label">성장성</div><div class="kpi-value">높음</div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-point">
+        <div class="clabel">💡 패스트파이브 연결 — 권역별 고객 페르소나</div>
+        고객이 "강남 말고 성수는 없어요?"라고 묻는 건 단순한 위치 선호가 아닙니다. <strong>임대료 부담을 줄이면서 회사 이미지에 맞는 분위기</strong>를 원하는 것입니다. 권역별 고객 성향을 이해하면 제안이 더 설득력 있어집니다. CBD는 신뢰·안정성, GBD는 성장·네트워크, 성수는 문화·브랜딩을 파는 것입니다.
+      </div>
+      <p>
+        <a href="https://www.jll.co.kr/ko/research/office" target="_blank" class="lbtn">📄 JLL 서울 권역별 분석</a>
+        <a href="https://www.youtube.com/results?search_query=%EC%84%B1%EC%88%98+%EC%98%A4%ED%94%BC%EC%8A%A4+%EC%8B%9C%EC%9E%A5" target="_blank" class="lbtn lbtn-outline">▶ 성수 오피스 시장 분석</a>
+        <a href="https://www.edaily.co.kr/News/Read?newsId=03544166632524736" target="_blank" class="lbtn lbtn-outline">📰 판교 오피스 수요 트렌드</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.sb-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const a = document.querySelector(`.sb-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+  navItems.forEach(n => {
+    n.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(n.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
