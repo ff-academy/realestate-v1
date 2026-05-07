@@ -283,11 +283,12 @@
   .rtag-new  { background: #D1FAE5; color: #065F46; }
   .rtag-warn { background: #FEE2E2; color: #991B1B; }
   .region-card ul { list-style: none; }
-  .region-card ul li {
-    font-size: 12.5px; color: #374151; padding: 5px 0;
-    border-bottom: 1px dashed #e5e7eb; line-height: 1.65;
-    display: flex; align-items: flex-start; gap: 7px;
-  }
+.region-card ul li {
+  font-size: 12.5px; color: #374151; padding: 5px 0;
+  border-bottom: 1px dashed #e5e7eb; line-height: 1.65;
+  display: flex; align-items: flex-start; gap: 7px;
+  word-break: keep-all;
+}
   .region-card ul li:last-child { border-bottom: none; }
   .region-card ul li::before {
     content: '·'; color: var(--w); font-weight: 700;
