@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Academy | 7주차 · 오피스 플레이어</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:        #2D1B4E;
+    --w:           #6D28D9;
+    --w-light:     #EDE9FE;
+    --w-mid:       #5B21B6;
+    --accent:      #E8A020;
+    --accent-light:#FDF3DC;
+    --teal:        #0D7A6B;
+    --teal-light:  #D4F0EB;
+    --red:         #B91C1C;
+    --red-light:   #FEF2F2;
+    --bg:          #F4F6F8;
+    --white:       #FFFFFF;
+    --text:        #1E2532;
+    --text-soft:   #5A6172;
+    --border:      #DDE2EA;
+    --sidebar-w:   248px;
+    --shadow:      0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 14px; }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0; background: var(--navy);
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+  .sb-brand { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .sb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .sb-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.4; }
+  .sb-week-badge { margin: 14px 20px 0; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--w); border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; letter-spacing: .04em; }
+  .sb-nav-label { padding: 18px 20px 4px; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.22); }
+  .sb-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,.55); font-size: 12.5px; cursor: pointer; border-left: 2px solid transparent; transition: all .15s; text-decoration: none; }
+  .sb-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .sb-item.active { color: #fff; background: rgba(255,255,255,.1); border-left-color: #A78BFA; }
+  .sb-chip { width: 20px; height: 20px; border-radius: 5px; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; color: rgba(255,255,255,.6); transition: all .15s; }
+  .sb-item.active .sb-chip { background: var(--w); color: #fff; }
+
+  .main { flex: 1; padding: 44px 56px 80px; max-width: 960px; min-width: 0; }
+
+  .week-hero { border-radius: 16px; padding: 48px 40px; margin-bottom: 48px; position: relative; overflow: hidden; background: linear-gradient(135deg, #2D1B4E 0%, #6D28D9 60%, #5B21B6 100%); }
+  .week-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.05); }
+  .week-hero::after { content: ''; position: absolute; bottom: -40px; right: 80px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.03); }
+  .hero-week-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
+  .week-hero h1 { color: #fff; font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+  .week-hero p  { color: rgba(255,255,255,.8); font-size: 14px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .hero-chip { padding: 5px 13px; border-radius: 20px; background: rgba(255,255,255,.14); color: #fff; font-size: 12px; font-weight: 500; }
+
+  .section { margin-bottom: 60px; scroll-margin-top: 24px; opacity: 0; transform: translateY(14px); animation: fadeUp .4s ease forwards; }
+  .section:nth-child(2){animation-delay:.05s}
+  .section:nth-child(3){animation-delay:.10s}
+  .section:nth-child(4){animation-delay:.15s}
+  .section:nth-child(5){animation-delay:.19s}
+  .section:nth-child(6){animation-delay:.23s}
+  @keyframes fadeUp { to { opacity:1; transform:none; } }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--w-light); }
+  .section-num { width: 34px; height: 34px; border-radius: 50%; background: var(--w); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+
+  .sub { margin-bottom: 28px; }
+  .sub-title { font-size: 15px; font-weight: 700; color: var(--w); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sub-title::before { content: ''; width: 3px; height: 15px; background: var(--w); border-radius: 2px; flex-shrink: 0; }
+  .sub-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; }
+
+  p { font-size: 13.5px; color: #374151; line-height: 1.85; margin-bottom: 10px; }
+  p strong { color: var(--navy); }
+  .hl { background: #fffbeb; border-bottom: 2px solid #fde68a; font-weight: 600; padding: 0 2px; }
+
+  .callout { border-radius: 8px; padding: 13px 16px; margin: 10px 0; font-size: 13px; line-height: 1.75; }
+  .callout .clabel { font-weight: 700; font-size: 11.5px; letter-spacing: .04em; margin-bottom: 4px; }
+  .callout-tip  { background: var(--w-light);    border-left: 3px solid var(--w);     color: #1E1245; }
+  .callout-tip  .clabel { color: var(--w); }
+  .callout-warn { background: var(--red-light);  border-left: 3px solid var(--red);   color: #7f1d1d; }
+  .callout-warn .clabel { color: var(--red); }
+  .callout-point{ background: var(--accent-light);border-left: 3px solid var(--accent);color: #5a3e00; }
+  .callout-point .clabel { color: var(--accent); }
+  .callout-teal { background: var(--teal-light); border-left: 3px solid var(--teal);  color: #064e3b; }
+  .callout-teal .clabel { color: var(--teal); }
+
+  .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .03em; white-space: nowrap; }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child  { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  tbody tr:hover { background: var(--w-light); transition: background .12s; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; line-height: 1.7; }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--navy); }
+
+  /* PLAYER CARDS */
+  .player-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 14px 0; }
+  .player-card { background: var(--white); border: 1px solid var(--border); border-top: 3px solid var(--w); border-radius: 12px; padding: 18px; transition: box-shadow .15s, transform .15s; }
+  .player-card:hover { box-shadow: 0 4px 18px rgba(109,40,217,.1); transform: translateY(-2px); }
+  .player-icon { font-size: 22px; margin-bottom: 8px; }
+  .player-name { font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+  .player-role { font-size: 11px; font-weight: 600; color: var(--w); letter-spacing: .04em; margin-bottom: 10px; }
+  .player-desc { font-size: 12.5px; color: #374151; line-height: 1.7; }
+  .player-desc li { list-style: none; padding: 3px 0; padding-left: 12px; position: relative; }
+  .player-desc li::before { content: '·'; position: absolute; left: 0; color: var(--w); font-weight: 700; }
+  .player-tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+  .ptag { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: var(--w-light); color: var(--w-mid); font-weight: 600; }
+
+  /* OPS CARDS */
+  .ops-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+  .ops-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; transition: box-shadow .15s; }
+  .ops-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  .ops-abbr { font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+  .ops-name { font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-bottom: 10px; }
+  .ops-fullname { font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .ops-desc { font-size: 12px; color: var(--text-soft); line-height: 1.65; text-align: left; }
+  .ops-desc li { list-style: none; padding: 2px 0; padding-left: 10px; position: relative; }
+  .ops-desc li::before { content: '·'; position: absolute; left: 0; }
+  .ops-pm .ops-abbr { color: #1E40AF; }
+  .ops-pm .ops-name { color: #1E40AF; }
+  .ops-fm .ops-abbr { color: #065F46; }
+  .ops-fm .ops-name { color: #065F46; }
+  .ops-lm .ops-abbr { color: #92400E; }
+  .ops-lm .ops-name { color: #92400E; }
+
+  /* FLOW DIAGRAM */
+  .flow-wrap { margin: 16px 0; }
+  .flow-row { display: flex; align-items: stretch; gap: 0; margin-bottom: 4px; flex-wrap: wrap; }
+  .flow-node {
+    flex: 1; min-width: 100px; background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; text-align: center;
+    position: relative;
+  }
+  .flow-node-title { font-size: 12px; font-weight: 800; color: var(--navy); margin-bottom: 3px; }
+  .flow-node-sub   { font-size: 11px; color: var(--text-soft); line-height: 1.5; }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; padding: 0 8px; color: var(--w); font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  .fn-owner { border-top: 3px solid #1E40AF; }
+  .fn-pm    { border-top: 3px solid #065F46; }
+  .fn-broker{ border-top: 3px solid #92400E; }
+  .fn-ff    { border-top: 3px solid var(--w); background: var(--w-light); }
+  .fn-ff .flow-node-title { color: var(--w-mid); }
+  .fn-tenant{ border-top: 3px solid #374151; }
+
+  /* ADVISOR CARDS */
+  .advisor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0; }
+  .advisor-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .advisor-logo { font-size: 13px; font-weight: 900; color: var(--navy); margin-bottom: 4px; letter-spacing: .02em; }
+  .advisor-full { font-size: 11px; color: var(--text-soft); margin-bottom: 10px; }
+  .advisor-services { font-size: 12px; color: #374151; line-height: 1.65; }
+  .advisor-services li { list-style: none; padding: 2px 0; padding-left: 10px; position: relative; }
+  .advisor-services li::before { content: '·'; position: absolute; left: 0; color: var(--w); font-weight: 700; }
+
+  /* DEV PLAYERS */
+  .dev-flow { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+  .dev-item { display: flex; align-items: flex-start; gap: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .dev-icon { font-size: 22px; flex-shrink: 0; }
+  .dev-content h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+  .dev-content p  { font-size: 12.5px; color: var(--text-soft); margin: 0; line-height: 1.65; }
+
+  /* FF POSITION */
+  .ff-position-card { background: linear-gradient(135deg, #2D1B4E 0%, #4C1D95 100%); border-radius: 14px; padding: 24px; margin: 14px 0; color: #fff; }
+  .ff-pos-title { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .04em; margin-bottom: 16px; }
+  .ff-pos-insight { font-size: 14px; color: rgba(255,255,255,.9); line-height: 1.8; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.15); }
+  .ff-pos-insight strong { color: #C4B5FD; }
+
+  ul.cl { list-style: none; margin: 8px 0; }
+  ul.cl li { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; font-size: 13.5px; color: #374151; border-bottom: 1px dashed #e5e7eb; line-height: 1.7; }
+  ul.cl li:last-child { border-bottom: none; }
+  ul.cl li::before { content: '✓'; width: 18px; height: 18px; flex-shrink: 0; background: var(--w); color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-top: 3px; }
+  ul.cl.warn li::before { background: var(--red); content: '!'; }
+
+  /* OPS NEW CARDS */
+  .ops-new-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+  .ops-new-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 20px 18px; transition: box-shadow .15s, transform .15s; }
+  .ops-new-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); transform: translateY(-2px); }
+  .ops-new-pm { border-top: 4px solid #1E40AF; }
+  .ops-new-fm { border-top: 4px solid #065F46; }
+  .ops-new-lm { border-top: 4px solid #92400E; }
+  .ops-new-emoji { font-size: 28px; margin-bottom: 10px; }
+  .ops-new-abbr { font-size: 22px; font-weight: 900; margin-bottom: 2px; }
+  .ops-new-fullname { font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+  .ops-new-desc { font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 10px; }
+  .ops-new-list { list-style: none; }
+  .ops-new-list li { font-size: 12px; color: var(--text-soft); padding: 3px 0; padding-left: 12px; position: relative; border-bottom: 1px dashed var(--border); line-height: 1.6; }
+  .ops-new-list li:last-child { border-bottom: none; }
+  .ops-new-list li::before { content: '·'; position: absolute; left: 0; font-weight: 700; }
+  .ops-new-pm .ops-new-list li::before { color: #1E40AF; }
+  .ops-new-fm .ops-new-list li::before { color: #065F46; }
+  .ops-new-lm .ops-new-list li::before { color: #92400E; }
+  .ops-ff-callout { display: flex; gap: 14px; align-items: flex-start; background: var(--accent-light); border: 1px solid #F6D78A; border-radius: 10px; padding: 16px 18px; margin-top: 16px; }
+  .ops-ff-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+
+  /* DEV TIMELINE */
+  .dev-timeline { margin: 14px 0; }
+  .dev-tl-item { display: flex; gap: 16px; margin-bottom: 0; }
+  .dev-tl-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .dev-tl-num { width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .dev-tl-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 24px; }
+  .dev-tl-content { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; flex: 1; }
+  .dev-tl-title { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 2px; }
+  .dev-tl-sub { font-size: 13px; font-weight: 400; color: var(--text-soft); }
+  .dev-tl-role { font-size: 12px; font-weight: 700; margin-bottom: 8px; letter-spacing: .03em; }
+  .dev-tl-desc { font-size: 13px; color: #374151; line-height: 1.75; margin: 0; }
+
+  /* QUIZ */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 20px; margin: 14px 0; }
+  .quiz-card { background: #1E2532; border-radius: 14px; padding: 24px; }
+  .quiz-scenario { font-size: 13.5px; color: rgba(255,255,255,.9); line-height: 1.8; margin-bottom: 18px; }
+  .quiz-scenario strong { color: #fff; }
+  .quiz-options { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .quiz-btn { background: var(--white); border: none; border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--navy); cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .15s; }
+  .quiz-btn:hover:not(:disabled) { background: var(--w-light); color: var(--w); transform: translateY(-1px); }
+  .quiz-btn:disabled { cursor: default; }
+  .quiz-btn.correct { background: #D1FAE5; color: #065F46; border: 2px solid #059669; }
+  .quiz-btn.wrong { background: #FEE2E2; color: #991B1B; border: 2px solid #EF4444; }
+  .quiz-feedback { border-radius: 8px; padding: 12px 16px; font-size: 13px; line-height: 1.75; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #D1FAE5; color: #065F46; }
+  .quiz-feedback.wrong { background: #FEE2E2; color: #991B1B; }
+
+  .lbtn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: var(--w); color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; margin: 3px 3px 3px 0; }
+  .lbtn:hover { background: #4C1D95; filter: brightness(1.1); transform: translateY(-1px); }
+  .lbtn-outline { background: transparent; color: var(--w); border: 1.5px solid var(--w); padding: 3px 11px; }
+  .lbtn-outline:hover { background: var(--w-light); }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+
+  /* THINK BOX */
+  .think-box { display: flex; flex-direction: column; gap: 12px; margin: 14px 0; }
+  .think-item { display: flex; gap: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .think-num { width: 36px; height: 36px; border-radius: 50%; background: var(--w); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .think-q { font-size: 13.5px; color: var(--navy); line-height: 1.8; margin-bottom: 6px; }
+  .think-hint { font-size: 12px; color: var(--text-soft); background: var(--bg); border-radius: 6px; padding: 6px 10px; line-height: 1.6; }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .week-hero { padding: 32px 24px; }
+    .week-hero h1 { font-size: 24px; }
+    .player-grid, .ops-row, .advisor-grid, .ops-new-row { grid-template-columns: 1fr; }
+    .flow-row { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .quiz-options { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">FF Academy</div>
+    <div class="sb-title">Level 2-2. 오피스 플레이어</div>
+  </div>
+  <div class="sb-nav-label">목차</div>
+  <a class="sb-item active" href="#s1"><span class="sb-chip">1</span>임대인 유형</a>
+  <a class="sb-item"        href="#s2"><span class="sb-chip">2</span>운영 주체 PM·FM·LM</a>
+  <a class="sb-item"        href="#s3"><span class="sb-chip">3</span>글로벌 자문사</a>
+  <a class="sb-item"        href="#s4"><span class="sb-chip">4</span>개발 관련 주체</a>
+  <a class="sb-item"        href="#s5"><span class="sb-chip">5</span>패스트파이브의 포지션</a>
+  <a class="sb-item"        href="#s6"><span class="sb-chip">✓</span>학습 마무리 퀴즈</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="week-hero">
+    <div class="hero-week-tag">WEEK 7 · LEVEL 2</div>
+    <h1>오피스 플레이어</h1>
+    <p>오피스 시장에는 누가 있고 무슨 일을 하는가 — 플레이어 지도를 그릴 수 있어야 협상 테이블에서 상대가 보입니다</p>
+    <div class="hero-chips">
+      <span class="hero-chip">임대인 유형</span>
+      <span class="hero-chip">PM·FM·LM</span>
+      <span class="hero-chip">글로벌 자문사</span>
+      <span class="hero-chip">개발 주체</span>
+      <span class="hero-chip">FF 포지션</span>
+    </div>
+  </div>
+
+  <!-- ── 01 ── -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2 class="section-title">임대인 유형 - 빌딩의 진짜 주인은 누구일까?</h2>
+    </div>
+
+    <p>빌딩은 거대한 자산입니다. 주인의 성격(자본의 출처, 목표 수익률)에 따라 빌딩을 관리하는 목표와 임대 전략이 완전히 달라집니다. 어떤 건물은 안정적인 월세만 원하고, 어떤 건물은 대대적인 리모델링을 통해 가치를 높이려 합니다. </p>
+    <p>상대방이 어떤 유형인지 파악하는 것이 협상의 첫 번째 단계입니다. <span class="hl">등기부등본의 소유자란</span>을 보면 알 수 있습니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">4가지 임대인 유형</div>
+      <div class="player-grid">
+        <div class="player-card">
+          <div class="player-icon">👤</div>
+          <div class="player-name">개인·법인 자산가</div>
+          <div class="player-role">PRIVATE OWNER</div>
+          <ul class="player-desc">
+            <li>전통적인 '건물주'</li>
+            <li>건물주가 직접 의사결정 — 빠르거나 보수적이거나</li>
+            <li>감정적 요소 개입 가능 (건물에 대한 애착, 임차인과 관계 중시)</li>
+            <li>전문 지식 수준이 낮을 수도 있어 설명이 필요한 경우 있음</li>
+            <li>등기부에 개인 이름 또는 소규모 법인명 기재</li>
+          </ul>
+          <div class="player-tag-row">
+            <span class="ptag">빠른 결정</span>
+            <span class="ptag">감정적 협상</span>
+            <span class="ptag">직접 소통</span>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <div class="player-icon">🏦</div>
+          <div class="player-name">자산운용사</div>
+          <div class="player-role">ASSET MANAGEMENT COMPANY</div>
+          <ul class="player-desc">
+            <li>투자자(기관·고액자산가)로부터 위탁받아 부동산 펀드 운용</li>
+            <li>많은 결정이 <strong>IRR·NOI 등 수익률 기준</strong>으로 이루어짐</li>
+            <li>목표는 <strong>가치 상승(Value-add)</strong>.</li>
+            <li>패파같은 우량 임차인을 유치해 가치를 극대화한 후 되팔아 차익 노림</li>
+            <li>규정·절차 철저 — 계약서 검토에 시간이 걸림</li>
+            <li>등기부에 "○○자산운용" 형태로 표기</li>
+          </ul>
+          <div class="player-tag-row">
+            <span class="ptag">수익률 중심</span>
+            <span class="ptag">느린 결정</span>
+            <span class="ptag">절차 중시</span>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <div class="player-icon">📈</div>
+          <div class="player-name">리츠 (REITs)</div>
+          <div class="player-role">REAL ESTATE INVESTMENT TRUSTS</div>
+          <ul class="player-desc">
+            <li>다수 투자자의 자금을 모아 부동산에 투자하는 회사</li>
+            <li><strong>공모리츠</strong>: 주식시장 상장, 소액 투자자 참여 가능. 배당 의무 있어 공실 최소화 압박 강함</li>
+            <li><strong>사모리츠</strong>: 기관투자자 중심, 비상장. 협상 여지 상이</li>
+            <li>등기부에 "○○리츠" 형태로 표기</li>
+          </ul>
+          <div class="player-tag-row">
+            <span class="ptag">배당 의무</span>
+            <span class="ptag">공실 민감</span>
+            <span class="ptag">장기 안정 선호</span>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <div class="player-icon">🛡️</div>
+          <div class="player-name">신탁사</div>
+          <div class="player-role">TRUST COMPANY</div>
+          <ul class="player-desc">
+            <li>소유권을 일시적으로 넘겨받아 자산을 안전하게 보관/관리하는 금융기관. 법적 안전장치 역할.</li>
+            <li><strong>담보신탁</strong>: 대출 담보로 신탁사에 명의이전</li>
+            <li><strong>관리신탁</strong>: 건물 운영·임대를 신탁사가 대신</li>
+            <li>계약 주체가 신탁사 — 서류·승인 절차 복잡, 실질 소유자와 별도 소통 필요</li>
+            <li>등기부에 "○○신탁" 형태로 표기</li>
+          </ul>
+          <div class="player-tag-row">
+            <span class="ptag">절차 복잡</span>
+            <span class="ptag">이중 소통</span>
+            <span class="ptag">서류 주의</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">상대 유형별 협상 전략</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>임대인 유형</th><th>의사결정 속도</th><th>협상 포인트</th><th>주의사항</th></tr></thead>
+          <tbody>
+            <tr><td><strong>개인 자산가</strong></td><td>빠름</td><td>관계·신뢰 형성이 핵심. 장기 임차 어필</td><td>구두 약속에 의존 금지 — 반드시 서면화</td></tr>
+            <tr><td><strong>자산운용사</strong></td><td>느림 (심의 필요)</td><td>수익률 자료 제시, NOI 개선 근거 설명</td><td>담당 AM이 바뀌면 협상 처음부터 다시 시작될 수 있음</td></tr>
+            <tr><td><strong>공모리츠</strong></td><td>보통</td><td>장기 계약·공실 채워주는 안정성 강조</td><td>주주 배당 의무로 임대료 협상 폭 좁을 수 있음</td></tr>
+            <tr><td><strong>신탁사</strong></td><td>느림 (위탁자 확인 필요)</td><td>위탁자와 신탁사 모두 설득 필요</td><td>계약 상대방이 신탁사임에도 위탁자 동의 없이는 진행 불가</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-tip">
+        <div class="clabel">📌 실무 팁 — 상대방 파악법</div>
+        등기부등본 소유자란에서 바로 확인하세요.<br>
+        <strong>개인 이름</strong> → 개인 자산가 / <strong>○○자산운용</strong> → 펀드 운용사 / <strong>○○리츠</strong> → REITs / <strong>○○신탁</strong> → 신탁 구조<br>
+        2주차에서 배운 공적 장부 읽기가 여기서 바로 쓰입니다.
+      </div>
+      <p><a href="https://www.reits.or.kr" target="_blank" class="lbtn">🔗 한국리츠협회</a> <a href="https://www.youtube.com/results?search_query=%EB%A6%AC%EC%B8%A0+%EB%B6%80%EB%8F%99%EC%82%B0+%ED%88%AC%EC%9E%90+%EA%B5%AC%EC%A1%B0" target="_blank" class="lbtn lbtn-outline">▶ 리츠 구조 영상</a></p>
+    </div>
+  </section>
+
+  <!-- ── 02 ── -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2 class="section-title">운영 주체<span style="font-size:15px;font-weight:400;color:var(--text-soft)">(Operator)</span> — PM · FM · LM</h2>
+    </div>
+
+    <p>건물주가 건물을 "소유"한다면, 실제 운영은 전문 회사에 위탁하는 경우가 대부분입니다. 이를 모르면 문제가 생겼을 때 어디에 연락해야 할지 모르게 됩니다. <span class="hl">세 역할을 구분하면 "지금 누구에게 전화해야 하는가"가 즉시 보입니다.</span></p>
+    <p>임대인이 자본을 담당한다면, 운영 주체는 물리적인 빌딩에 생명력을 불어넣는 전문가 경영인들입니다. 실무에서 가장 많이 접하게 되는 3대장의 역할을 이해하는 것은 필수적입니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">세 가지 운영 역할</div>
+      <div class="ops-new-row">
+        <div class="ops-new-card ops-new-pm">
+          <div class="ops-new-emoji">🧠</div>
+          <div class="ops-new-abbr" style="color:#1E40AF">PM</div>
+          <div class="ops-new-fullname" style="color:#1E40AF">자산관리 (Property Management)</div>
+          <p class="ops-new-desc">빌딩의 <strong>'뇌'</strong>. 예산 수립, 임대료 징수, 리모델링 기획 등 숫자와 계약을 다루며 경영을 총괄합니다.</p>
+          <ul class="ops-new-list">
+            <li>임대차 계약 체결·갱신·종료</li>
+            <li>임대 수익 관리, 건물주 리포팅</li>
+            <li>임대 조건 협상의 실질 창구</li>
+          </ul>
+        </div>
+        <div class="ops-new-card ops-new-fm">
+          <div class="ops-new-emoji">🛠️</div>
+          <div class="ops-new-abbr" style="color:#065F46">FM</div>
+          <div class="ops-new-fullname" style="color:#065F46">시설관리 (Facility Management)</div>
+          <p class="ops-new-desc">빌딩의 <strong>'몸'</strong>. 기계, 승강기, 미화, 보안 등 현장 컨디션을 책임집니다. 공간의 쾌적함을 유지하는 핵심입니다.</p>
+          <ul class="ops-new-list">
+            <li>냉난방·전기·소방·엘리베이터 유지보수</li>
+            <li>청소·보안·주차 관리</li>
+            <li>하자 발생 시 1차 대응 창구</li>
+          </ul>
+        </div>
+        <div class="ops-new-card ops-new-lm">
+          <div class="ops-new-emoji">📣</div>
+          <div class="ops-new-abbr" style="color:#92400E">LM</div>
+          <div class="ops-new-fullname" style="color:#92400E">임대마케팅 (Leasing Management)</div>
+          <p class="ops-new-desc">빌딩의 <strong>'영업사원'</strong>. 공실을 채우기 위해 시장을 조사하고 우량 기업과 임대차 조건을 협상합니다.</p>
+          <ul class="ops-new-list">
+            <li>테넌트 유치·임대 전략 수립</li>
+            <li>자문사·중개인과 협력</li>
+            <li>임대 인센티브(RF·TI) 결정</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ops-ff-callout">
+        <div class="ops-ff-icon">💡</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:5px;">패스트파이브와의 연결 고리</div>
+          <p style="margin:0;font-size:13px;color:#374151;line-height:1.75">패스트파이브는 거대한 면적을 빌려 LM의 가장 큰 고민인 공실을 한 번에 해결해줍니다. 나아가 직접 공간을 멋지게 구축하고 관리함으로써 내부적으로 PM과 FM의 기능까지 수행합니다. 자산운용사(AMC) 입장에서는 <strong>'건물에 트렌디한 활기를 불어넣어 가치를 올려주는 완벽한 Value-add 파트너'</strong>가 되는 것입니다.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">실제 협상 테이블에 누가 앉는가</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>상황</th><th>주 창구</th><th>최종 결재</th><th>실무 팁</th></tr></thead>
+          <tbody>
+            <tr><td><strong>신규 지점 임대 협상</strong></td><td>LM 담당자</td><td>PM → 건물주(운용사)</td><td>자문사 브로커가 중간 역할. LM 담당자와 신뢰 쌓기가 우선</td></tr>
+            <tr><td><strong>계약 조건 변경·갱신</strong></td><td>PM 담당자</td><td>건물주(운용사) 심의</td><td>협상 자료(점유율, 납부 이력)를 사전 준비해야 유리</td></tr>
+            <tr><td><strong>시설 하자·민원</strong></td><td>FM 담당자</td><td>FM 자체 처리</td><td>입주 초기에 FM 담당자 연락처 확보 필수</td></tr>
+            <tr><td><strong>임대료 인상 통보 대응</strong></td><td>PM 담당자</td><td>건물주(운용사)</td><td>3주차 임대차 구조(인상 방식)와 연결해 논리 준비</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 03 ── -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2 class="section-title">글로벌 자문사<span style="font-size:15px;font-weight:400;color:var(--text-soft)">(Global Advisors)</span> - 시장의 나침반</h2>
+    </div>
+
+    <p>CBRE, JLL, 쿠시먼앤드웨이크필드(C&W) 등 뉴스에 자주 등장하는 글로벌 부동산 서비스 기업들입니다. 이들은 부동산 시장의 <span class="hl">종합 컨설팅 회사</span>입니다. </p>
+    <p>수천억 원짜리 빌딩 거래는 동네 부동산에서 할 수 없습니다. 이들은 방대한 데이터와 네트워크로 시장의 나침반 역할을 합니다. 리서치·투자 자문·자산관리·평가까지 부동산 가치 사슬의 전 영역에 걸쳐 서비스를 제공합니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">주요 글로벌 자문사</div>
+      <div class="advisor-grid">
+        <div class="advisor-card">
+          <div class="advisor-logo">CBRE</div>
+          <div class="advisor-full">CB Richard Ellis</div>
+          <ul class="advisor-services">
+            <li>세계 최대 상업용 부동산 서비스 기업</li>
+            <li>분기 마켓 리포트 가장 널리 활용</li>
+            <li>임대차 중개, 투자 매각 자문</li>
+            <li>자산관리·시설관리 서비스도 제공</li>
+          </ul>
+        </div>
+        <div class="advisor-card">
+          <div class="advisor-logo">JLL</div>
+          <div class="advisor-full">Jones Lang LaSalle</div>
+          <ul class="advisor-services">
+            <li>투자·자본시장 자문에 강점</li>
+            <li>테크 기업 임차인 네트워크 보유</li>
+            <li>JLL Technology 플랫폼 운영</li>
+            <li>ESG 부동산 자문 선도</li>
+          </ul>
+        </div>
+        <div class="advisor-card">
+          <div class="advisor-logo">C&W</div>
+          <div class="advisor-full">Cushman & Wakefield</div>
+          <ul class="advisor-services">
+            <li>임차인 대리(Tenant Rep) 강점</li>
+            <li>대규모 기업 이전 프로젝트 다수</li>
+            <li>자산 실사 및 가치평가</li>
+            <li>PM·FM 서비스 통합 제공</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">Tenant Rep vs Landlord Rep</div>
+      <p>같은 자문사도 <strong>누구 편으로 일하느냐</strong>에 따라 역할이 완전히 달라집니다. 한 거래에 양쪽 자문사가 모두 붙는 경우도 있습니다.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>구분</th><th>의뢰인</th><th>역할</th><th>수수료 구조</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Tenant Rep (임차인 대리)</strong></td>
+              <td>임차인 (패스트파이브 등)</td>
+              <td>좋은 조건의 건물 탐색, 임대 협상 대리, 시장 데이터 제공</td>
+              <td>성공보수 (계약 성사 시 임대료의 일정 %)로 건물주 측에서 지급</td>
+            </tr>
+            <tr>
+              <td><strong>Landlord Rep (임대인 대리)</strong></td>
+              <td>건물주·운용사</td>
+              <td>공실 채우기, 임차인 유치 마케팅, 계약 협상 지원</td>
+              <td>성공보수 (임대 성사 시 수수료)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <div class="clabel">⚠️ 이해충돌 주의</div>
+        자문사가 동시에 임대인·임차인 양쪽을 대리하는 경우(Dual Agency)가 발생할 수 있습니다. 이 경우 어느 쪽 이익을 우선시하는지 불명확해질 수 있습니다. 중요한 협상에서는 자문사에 "현재 이 거래에서 누구를 대리하고 있는지"를 명확히 확인하세요.
+      </div>
+      <p><a href="https://www.cbre.co.kr" target="_blank" class="lbtn">🔗 CBRE Korea</a> <a href="https://www.jll.co.kr" target="_blank" class="lbtn lbtn-outline">🔗 JLL Korea</a> <a href="https://www.cushmanwakefield.com/ko-kr/south-korea" target="_blank" class="lbtn lbtn-outline">🔗 C&W Korea</a></p>
+    </div>
+  </section>
+
+  <!-- ── 04 ── -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2 class="section-title">개발 주체 <span style="font-size:15px;font-weight:400;color:var(--text-soft)">(Developer &amp; Builders)</span></h2>
+    </div>
+
+    <p>강남 한복판의 멋진 빌딩도 처음에는 빈 땅이나 낡은 건물에서 시작합니다. 하나의 오피스 개발 프로젝트가 완성되기까지 맞물려 돌아가는 <strong>4개의 톱니바퀴</strong>와 그 흐름을 확인해보세요.</p>
+
+    <div class="sub">
+      <div class="sub-title">개발 프로세스 — 4개의 톱니바퀴</div>
+      <div class="dev-timeline">
+
+        <div class="dev-tl-item">
+          <div class="dev-tl-left">
+            <div class="dev-tl-num" style="background:#6D28D9">1</div>
+            <div class="dev-tl-line"></div>
+          </div>
+          <div class="dev-tl-content">
+            <div class="dev-tl-title">시행사 <span class="dev-tl-sub">(Developer)</span></div>
+            <div class="dev-tl-role" style="color:#6D28D9">총괄 감독 (기획)</div>
+            <p class="dev-tl-desc">"여기에 오피스를 지으면 대박이다!" 최초의 판을 짜고, 땅을 매입하며 사업의 모든 책임을 지는 High Risk, High Return 주체입니다. (예: MDM, 신영)</p>
+          </div>
+        </div>
+
+        <div class="dev-tl-item">
+          <div class="dev-tl-left">
+            <div class="dev-tl-num" style="background:#0891B2">2</div>
+            <div class="dev-tl-line"></div>
+          </div>
+          <div class="dev-tl-content">
+            <div class="dev-tl-title">금융기관 <span class="dev-tl-sub">(FI)</span></div>
+            <div class="dev-tl-role" style="color:#0891B2">자금 (투자 배급사)</div>
+            <p class="dev-tl-desc">건물의 미래 가치를 담보로 막대한 건설 자금을 조달하는 '투자 배급사'입니다. 수천 억의 공사비를 대출해주며(PF) 피를 수혈합니다. (예: 증권사·은행·보험사)</p>
+          </div>
+        </div>
+
+        <div class="dev-tl-item">
+          <div class="dev-tl-left">
+            <div class="dev-tl-num" style="background:#DB2777">3</div>
+            <div class="dev-tl-line"></div>
+          </div>
+          <div class="dev-tl-content">
+            <div class="dev-tl-title">설계사 <span class="dev-tl-sub">(Architect)</span></div>
+            <div class="dev-tl-role" style="color:#DB2777">도면 설계 (시나리오 작가)</div>
+            <p class="dev-tl-desc">용적률 등 법적 제한 안에서 최적의 외관과 동선을 그려내는 디자이너입니다. 건물의 뼈대를 시각화합니다. (예: 삼우, 희림)</p>
+          </div>
+        </div>
+
+        <div class="dev-tl-item">
+          <div class="dev-tl-left">
+            <div class="dev-tl-num" style="background:#D97706">4</div>
+            <div style="flex:1"></div>
+          </div>
+          <div class="dev-tl-content">
+            <div class="dev-tl-title">시공사 <span class="dev-tl-sub">(Contractor)</span></div>
+            <div class="dev-tl-role" style="color:#D97706">현장 기술자 (주연 배우)</div>
+            <p class="dev-tl-desc">설계 도면대로 한 치의 오차 없이 건물을 실제로 올려 완성하는 건설회사입니다. 정해진 기한 내 안전 완공이 핵심입니다. (예: 현대건설, 삼성물산)</p>
+          </div>
+        </div>
+
+      </div>
+      <p style="margin-top:14px"><a href="https://www.youtube.com/results?search_query=%EB%B6%80%EB%8F%99%EC%82%B0+PF+%EC%8B%9C%ED%96%89%EC%82%AC+%EA%B5%AC%EC%A1%B0" target="_blank" class="lbtn lbtn-outline">▶ 부동산 개발 구조 심화 (선택)</a></p>
+    </div>
+  </section>
+
+  <!-- ── 05 ── -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2 class="section-title">패스트파이브의 포지션</h2>
+  </div>
+
+  <p>7주 동안 배운 생태계 전체를 놓고 — 패스트파이브는 어디에 있을까요? </p>
+
+  <!-- 1. 시작은 이랬다 -->
+  <div class="sub">
+    <div class="sub-title">① 시작은 이랬다 — 마스터리스 구조</div>
+    <p>패스트파이브는 초기에 <strong>마스터리스(Master Lease)</strong> 모델로 시작했습니다. 건물주에게 직접 장기 임차한 뒤, 멤버사에게 단기로 재임대하는 구조입니다.</p>
+
+    <div class="flow-wrap">
+      <div class="flow-row">
+        <div class="flow-node fn-owner">
+          <div class="flow-node-title">건물주</div>
+          <div class="flow-node-sub">개인·운용사·리츠·신탁사</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-pm">
+          <div class="flow-node-title">PM / LM</div>
+          <div class="flow-node-sub">자산관리·임대마케팅</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-broker">
+          <div class="flow-node-title">자문사 브로커</div>
+          <div class="flow-node-sub">Landlord Rep / Tenant Rep</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-ff">
+          <div class="flow-node-title">패스트파이브</div>
+          <div class="flow-node-sub">대형 임차인</div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node fn-tenant">
+          <div class="flow-node-title">멤버사</div>
+          <div class="flow-node-sub">소·중규모 임차인</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ff-position-card">
+      <div class="ff-pos-title">💜 패스트파이브의 이중 포지션</div>
+      <p style="color:rgba(255,255,255,.9);font-size:13.5px;line-height:1.85;margin:0">
+        패스트파이브는 <strong style="color:#C4B5FD">건물주에게는 임차인</strong>이면서, <strong style="color:#C4B5FD">멤버사에게는 임대인</strong>입니다.<br>
+        건물주와 장기(5~10년) 고정 임대차 계약(Master Lease)을 맺고, 멤버사에게는 유연한 단기 계약(월 단위~1년)으로 재임대합니다.<br>
+        이 구조에서 패스트파이브는 <strong style="color:#C4B5FD">임대료 차익 + 서비스 비용이 포함된 멤버십 회원료</strong>로 수익을 냅니다.
+      </p>
+      <div class="ff-pos-insight">
+        <strong>구조적 리스크는 무엇인가?</strong> 건물주에게는 장기로 고정 임대료를 내야 하지만, 멤버사는 언제든 계약을 해지할 수 있습니다. 경기 침체로 멤버사 이탈이 늘면 고정 지출(임대료)은 그대로인데 수입이 줄어드는 구조적 리스크가 생깁니다. 이것이 <strong style="color:#fde68a">WeWork 위기의 핵심 원인</strong>이기도 했습니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 그런데 시장이 바뀌었다 -->
+  <div class="sub">
+    <div class="sub-title">② 그런데 시장이 바뀌었다 — 모델의 진화</div>
+    <p>시장에서 브랜드 신뢰도가 구축되면서, 패스트파이브는 건물주와 <strong>리스크와 수익을 함께 나누는 방향</strong>으로 모델을 다각화하기 시작했습니다.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>모델</th><th>핵심 구조</th><th>FF의 리스크</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Master Lease</strong> (초기)</td><td>FF가 고정 임대료 부담, 멤버 수익 차익</td><td>공실 시 손실 전부 FF 부담</td></tr>
+          <tr><td><strong>Revenue Share</strong></td><td>매출에 따라 수익의 일정 비율을 건물주와 분배(임대차 계약)</td><td>Minimum Guarantee를 설정하기도 함 </td></tr>
+          <tr><td><strong>위탁운영</strong><br> (Managed-by)</td><td>공유오피스에서 발생하는 총 매출에서 위탁운영 수수료를 제외한 매출 지급</td><td>리스크 최소화</td></tr>
+          <tr><td><strong>VC (Value Consulting)</strong></td><td>신축·리모델링·운영 전 과정 컨설팅</td><td>컨설팅 수수료 기반 — 임대 리스크 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 3. 생각해보기 -->
+  <div class="sub">
+    <div class="sub-title">③ 생각해보기 — 정답 없는 질문</div>
+    <p>아래 질문에 대해 스스로 생각해보세요. 정답은 없습니다. 여러분의 논리가 중요합니다.</p>
+
+    <div class="think-box">
+      <div class="think-item">
+        <div class="think-num">Q1</div>
+        <div class="think-content">
+          <div class="think-q">패스트파이브가 마스터리스 대신 위탁운영을 건물주에게 제안할 때, <strong>건물주 입장에서 유리한 점과 불리한 점</strong>은 각각 무엇일까요?</div>
+        </div>
+      </div>
+      <div class="think-item">
+        <div class="think-num">Q2</div>
+        <div class="think-content">
+          <div class="think-q">앞으로 <strong>패스트파이브의 포지션은 어떻게 변화해야 할까요?</strong> 지금까지 패파에서 운영하고 있는 상품들 중 어떤 방향이 더 중요해질 것 같나요?</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── QUIZ ── -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">✓</div>
+      <h2 class="section-title">학습 마무리 퀴즈</h2>
+    </div>
+    <p>오늘 배운 내용을 바탕으로 아래 시나리오 문제를 풀어보세요. 각 보기를 클릭하면 정답 여부를 확인할 수 있습니다.</p>
+
+    <div class="quiz-wrap">
+
+      <!-- Q1 -->
+      <div class="quiz-card" id="q1">
+        <div class="quiz-scenario"><strong>Q1. 시나리오:</strong> A자산운용사가 여의도의 낡은 빌딩을 매입했습니다. 이들은 건물의 가치를 높여 5년 뒤 비싸게 팔 계획입니다. 이 운용사가 <strong>새로운 임차인을 구해 '대리인'을 고용한다면</strong>, 어떤 주체에게 일을 맡겨야 할까요?</div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer('q1', this, false)">PM (자산관리)</button>
+          <button class="quiz-btn" onclick="checkAnswer('q1', this, false)">FM (시설관리)</button>
+          <button class="quiz-btn" onclick="checkAnswer('q1', this, true)">LM (임대마케팅)</button>
+        </div>
+        <div class="quiz-feedback" id="q1-feedback"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-card" id="q2">
+        <div class="quiz-scenario"><strong>Q2. 시나리오:</strong> 패스트파이브 역삼점에 입주한 멤버사가 "사무실 냉방이 작동하지 않는다"고 항의했습니다. 담당자가 <strong>가장 먼저 연락해야 할</strong> 주체는 누구일까요?</div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer('q2', this, false)">PM (자산관리)</button>
+          <button class="quiz-btn" onclick="checkAnswer('q2', this, true)">FM (시설관리)</button>
+          <button class="quiz-btn" onclick="checkAnswer('q2', this, false)">LM (임대마케팅)</button>
+        </div>
+        <div class="quiz-feedback" id="q2-feedback"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-card" id="q3">
+        <div class="quiz-scenario"><strong>Q3. 시나리오:</strong> 패스트파이브가 신규 지점 후보 건물의 등기부등본을 확인했더니 소유자란에 <strong>"○○신탁"</strong>이라고 적혀 있었습니다. 이 경우 협상 시 주의해야 할 점은?</div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer('q3', this, false)">신탁사가 최종 결정권자이므로 신탁사와만 협상하면 된다</button>
+          <button class="quiz-btn" onclick="checkAnswer('q3', this, true)">신탁사와 실질 소유자(위탁자) 모두 설득이 필요하며 서류·승인 절차가 복잡하다</button>
+          <button class="quiz-btn" onclick="checkAnswer('q3', this, false)">신탁사는 소유자가 아니므로 협상 상대가 아니다</button>
+        </div>
+        <div class="quiz-feedback" id="q3-feedback"></div>
+      </div>
+
+    </div>
+  </section>
+
+</section>
+
+</main>
+</div>
+
+<script>
+  function checkAnswer(qId, btn, isCorrect) {
+    const card = document.getElementById(qId);
+    const buttons = card.querySelectorAll('.quiz-btn');
+    const feedback = document.getElementById(qId + '-feedback');
+    buttons.forEach(b => b.disabled = true);
+    if (isCorrect) {
+      btn.classList.add('correct');
+      feedback.className = 'quiz-feedback correct show';
+      if (qId === 'q1') feedback.innerHTML = '🎉 정답입니다! (LM — 임대마케팅)<br>운용사가 건물의 가치를 높이려면 우량 임차인을 유치해 공실을 채워야 합니다. 이 영업 역할을 담당하는 것이 LM입니다. 패스트파이브가 이들의 훌륭한 파트너가 될 수 있죠!';
+      if (qId === 'q2') feedback.innerHTML = '🎉 정답입니다! (FM — 시설관리)<br>냉방·설비 등 물리적 시설 문제는 FM이 담당합니다. 입주 초기에 FM 담당자 연락처를 미리 확보해두는 것이 중요합니다.';
+      if (qId === 'q3') feedback.innerHTML = '🎉 정답입니다!<br>신탁 구조에서는 등기 명의는 신탁사지만 실질 소유자(위탁자)가 따로 있습니다. 계약 진행 시 신탁사와 위탁자 양쪽의 동의가 필요하며, 서류·승인 절차가 복잡해질 수 있습니다.';
+    } else {
+      btn.classList.add('wrong');
+      feedback.className = 'quiz-feedback wrong show';
+      if (qId === 'q1') feedback.innerHTML = '😅 아쉽습니다. 다시 생각해보세요.<br>PM은 경영 총괄, FM은 시설 관리를 뜻합니다. 새로운 임차인을 구해 영업을 뛰는 주체를 찾아보세요.';
+      if (qId === 'q2') feedback.innerHTML = '😅 아쉽습니다. 다시 생각해보세요.<br>냉방 고장은 계약이나 마케팅 문제가 아닌 시설 문제입니다. 물리적 건물 컨디션을 책임지는 주체가 누구인지 생각해보세요.';
+      if (qId === 'q3') feedback.innerHTML = '😅 아쉽습니다. 다시 생각해보세요.<br>신탁 구조는 등기 명의자(신탁사)와 실질 소유자(위탁자)가 분리되어 있는 게 핵심입니다. 어느 쪽이 최종 결정권을 갖는지 다시 생각해보세요.';
+      setTimeout(() => {
+        buttons.forEach(b => { b.disabled = false; b.classList.remove('wrong'); });
+        feedback.className = 'quiz-feedback';
+      }, 2000);
+    }
+  }
+
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.sb-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const a = document.querySelector(`.sb-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+  navItems.forEach(n => {
+    n.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(n.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
