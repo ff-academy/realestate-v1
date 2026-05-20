@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FF Academy | 8주차 · 핵심 투자 지표</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+  :root {
+    --navy:        #0C2340;
+    --w:           #0369A1;
+    --w-light:     #E0F2FE;
+    --w-mid:       #0284C7;
+    --accent:      #E8A020;
+    --accent-light:#FDF3DC;
+    --teal:        #0D7A6B;
+    --teal-light:  #D4F0EB;
+    --red:         #B91C1C;
+    --red-light:   #FEF2F2;
+    --bg:          #F4F6F8;
+    --white:       #FFFFFF;
+    --text:        #1E2532;
+    --text-soft:   #5A6172;
+    --border:      #DDE2EA;
+    --sidebar-w:   248px;
+    --shadow:      0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 14px; }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--navy); position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+  .sidebar::-webkit-scrollbar { width: 4px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 2px; }
+  .sb-brand { padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .sb-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .sb-title { font-size: 15px; font-weight: 800; color: #fff; line-height: 1.4; }
+  .sb-week-badge { margin: 14px 20px 0; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: var(--w); border-radius: 6px; font-size: 11px; font-weight: 700; color: #fff; letter-spacing: .04em; }
+  .sb-nav-label { padding: 18px 20px 4px; font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.22); }
+  .sb-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,.55); font-size: 12.5px; cursor: pointer; border-left: 2px solid transparent; transition: all .15s; text-decoration: none; }
+  .sb-item:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .sb-item.active { color: #fff; background: rgba(255,255,255,.1); border-left-color: #7DD3FC; }
+  .sb-chip { width: 20px; height: 20px; border-radius: 5px; background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; color: rgba(255,255,255,.6); transition: all .15s; }
+  .sb-item.active .sb-chip { background: var(--w); color: #fff; }
+
+  /* MAIN */
+  .main { flex: 1; padding: 44px 56px 80px; max-width: 960px; min-width: 0; }
+
+  /* HERO */
+  .week-hero { border-radius: 16px; padding: 48px 40px; margin-bottom: 48px; position: relative; overflow: hidden; background: linear-gradient(135deg, #0C2340 0%, #0369A1 60%, #0284C7 100%); }
+  .week-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(255,255,255,.05); }
+  .week-hero::after { content: ''; position: absolute; bottom: -40px; right: 80px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,.03); }
+  .hero-week-tag { display: inline-block; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; }
+  .week-hero h1 { color: #fff; font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+  .week-hero p { color: rgba(255,255,255,.8); font-size: 14px; }
+  .hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .hero-chip { padding: 5px 13px; border-radius: 20px; background: rgba(255,255,255,.14); color: #fff; font-size: 12px; font-weight: 500; }
+
+  /* SECTION */
+  .section { margin-bottom: 60px; scroll-margin-top: 24px; opacity: 0; transform: translateY(14px); animation: fadeUp .4s ease forwards; }
+  .section:nth-child(2){animation-delay:.05s}
+  .section:nth-child(3){animation-delay:.10s}
+  .section:nth-child(4){animation-delay:.15s}
+  .section:nth-child(5){animation-delay:.19s}
+  .section:nth-child(6){animation-delay:.23s}
+  @keyframes fadeUp { to { opacity:1; transform:none; } }
+
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--w-light); }
+  .section-num { width: 34px; height: 34px; border-radius: 50%; background: var(--w); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+
+  .sub { margin-bottom: 28px; }
+  .sub-title { font-size: 15px; font-weight: 700; color: var(--w); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sub-title::before { content: ''; width: 3px; height: 15px; background: var(--w); border-radius: 2px; flex-shrink: 0; }
+  .sub-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--text-soft); text-transform: uppercase; margin: 14px 0 6px; }
+
+  p { font-size: 13.5px; color: #374151; line-height: 1.85; margin-bottom: 10px; }
+  p strong { color: var(--navy); }
+  .hl { background: #fffbeb; border-bottom: 2px solid #fde68a; font-weight: 600; padding: 0 2px; }
+
+  /* CALLOUT */
+  .callout { border-radius: 8px; padding: 13px 16px; margin: 10px 0; font-size: 13px; line-height: 1.75; }
+  .callout .clabel { font-weight: 700; font-size: 11.5px; letter-spacing: .04em; margin-bottom: 4px; }
+  .callout-tip   { background: var(--w-light);    border-left: 3px solid var(--w);     color: #0C2340; }
+  .callout-tip   .clabel { color: var(--w); }
+  .callout-warn  { background: var(--red-light);  border-left: 3px solid var(--red);   color: #7f1d1d; }
+  .callout-warn  .clabel { color: var(--red); }
+  .callout-point { background: var(--accent-light);border-left: 3px solid var(--accent);color: #5a3e00; }
+  .callout-point .clabel { color: var(--accent); }
+  .callout-teal  { background: var(--teal-light); border-left: 3px solid var(--teal);  color: #064e3b; }
+  .callout-teal  .clabel { color: var(--teal); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin: 10px 0 14px; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--navy); color: #fff; padding: 10px 14px; text-align: left; font-weight: 600; font-size: 12px; letter-spacing: .03em; white-space: nowrap; }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child  { border-radius: 0 8px 0 0; }
+  tbody tr:nth-child(even) { background: #f8fafd; }
+  tbody tr:hover { background: var(--w-light); transition: background .12s; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: #374151; vertical-align: top; line-height: 1.7; }
+  tbody tr:last-child td { border-bottom: none; }
+  td strong { color: var(--navy); }
+
+  /* FORMULA */
+  .formula { background: var(--navy); color: #BAE6FD; padding: 16px 22px; border-radius: 8px; font-size: 15px; font-weight: 600; text-align: center; margin: 12px 0; line-height: 1.9; }
+  .formula span { color: #7DD3FC; }
+  .formula em   { color: #fde68a; font-style: normal; }
+  .formula small { font-size: 13px; opacity: .75; font-weight: 400; font-family: 'Noto Sans KR', sans-serif; }
+
+  /* LINK BUTTONS */
+  .lbtn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: var(--w); color: #fff; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: all .15s; margin: 3px 3px 3px 0; }
+  .lbtn:hover { background: #075985; filter: brightness(1.1); transform: translateY(-1px); }
+  .lbtn-outline { background: transparent; color: var(--w); border: 1.5px solid var(--w); padding: 3px 11px; }
+  .lbtn-outline:hover { background: var(--w-light); }
+
+  /* CHECKLIST */
+  ul.cl { list-style: none; margin: 8px 0; }
+  ul.cl li { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; font-size: 13.5px; color: #374151; border-bottom: 1px dashed #e5e7eb; line-height: 1.7; }
+  ul.cl li:last-child { border-bottom: none; }
+  ul.cl li::before { content: '✓'; width: 18px; height: 18px; flex-shrink: 0; background: var(--w); color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; margin-top: 3px; }
+
+  /* FLOW MAP */
+  .flow-map { background: var(--navy); border-radius: 14px; padding: 24px; margin: 16px 0; }
+  .flow-map-title { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.5); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 20px; }
+  .flow-map-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+  .flow-map-node { flex: 1; min-width: 120px; background: rgba(255,255,255,.08); border-radius: 10px; padding: 14px 12px; text-align: center; border: 1px solid rgba(255,255,255,.12); }
+  .flow-map-node.highlight { background: var(--w); border-color: var(--w); }
+  .flow-map-label { font-size: 11px; color: rgba(255,255,255,.5); margin-bottom: 4px; }
+  .flow-map-node.highlight .flow-map-label { color: rgba(255,255,255,.8); }
+  .flow-map-val { font-size: 14px; font-weight: 800; color: #fff; }
+  .flow-map-arrow { color: #7DD3FC; font-size: 20px; padding: 0 8px; flex-shrink: 0; }
+  .flow-map-eq { color: #fde68a; font-size: 18px; padding: 0 8px; flex-shrink: 0; font-weight: 700; }
+
+  /* INDICATOR CARDS */
+  .indicator-steps { display: flex; flex-direction: column; gap: 0; margin: 14px 0; }
+  .ind-step { display: flex; gap: 0; }
+  .ind-step-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 48px; }
+  .ind-step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--w); color: #fff; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ind-step-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 16px; }
+  .ind-step-body { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; flex: 1; }
+  .ind-step-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; margin-bottom: 8px; background: var(--w-light); color: var(--w); }
+  .ind-step-title { font-size: 16px; font-weight: 900; color: var(--navy); margin-bottom: 4px; }
+  .ind-step-sub { font-size: 12px; color: var(--text-soft); margin-bottom: 12px; }
+  .ind-step-body p { margin-bottom: 8px; }
+
+  /* INTERACTIVE CALCULATOR */
+  .calc-box { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin: 16px 0; }
+  .calc-header { background: var(--navy); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .calc-header-icon { font-size: 18px; }
+  .calc-header-title { font-size: 13px; font-weight: 700; color: #fff; }
+  .calc-header-sub { font-size: 11px; color: rgba(255,255,255,.5); margin-left: auto; }
+  .calc-body { padding: 20px; }
+  .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .calc-field label { font-size: 11px; font-weight: 700; color: var(--text-soft); letter-spacing: .04em; display: block; margin-bottom: 6px; }
+  .calc-field .val-display { font-size: 18px; font-weight: 900; color: var(--navy); margin-bottom: 6px; }
+  .calc-field input[type=range] { width: 100%; accent-color: var(--w); cursor: pointer; }
+  .calc-field .range-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-soft); margin-top: 3px; }
+  .calc-divider { border: none; border-top: 1px dashed var(--border); margin: 16px 0; }
+  .calc-result { background: var(--navy); border-radius: 10px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .calc-result-label { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 500; }
+  .calc-result-val { font-size: 22px; font-weight: 900; color: #fff; }
+  .calc-result-val.highlight { color: #fde68a; }
+  .calc-result-row { display: flex; flex-direction: column; }
+  .calc-explain { font-size: 12px; color: var(--text-soft); margin-top: 10px; line-height: 1.7; padding: 10px 14px; background: var(--bg); border-radius: 8px; }
+
+  /* VALUATION TABLE */
+  .val-table { margin: 14px 0; }
+  .val-table-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+  .val-cell { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; text-align: center; }
+  .val-cell.header { background: var(--navy); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+  .val-cell-label { font-size: 11px; color: var(--text-soft); margin-bottom: 4px; }
+  .val-cell-val { font-size: 14px; font-weight: 800; color: var(--navy); }
+
+  /* REMO VS NEW */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+  .compare-card { border-radius: 12px; padding: 20px; border: 1px solid var(--border); background: var(--white); }
+  .compare-card.remo { border-top: 4px solid #0369A1; }
+  .compare-card.newbuild { border-top: 4px solid #059669; }
+  .compare-icon { font-size: 28px; margin-bottom: 8px; }
+  .compare-title { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+  .compare-sub { font-size: 11px; color: var(--text-soft); margin-bottom: 12px; }
+  .compare-list { list-style: none; }
+  .compare-list li { font-size: 13px; color: #374151; padding: 5px 0; padding-left: 14px; position: relative; border-bottom: 1px dashed var(--border); line-height: 1.65; }
+  .compare-list li:last-child { border-bottom: none; }
+  .compare-list li::before { content: '·'; position: absolute; left: 0; font-weight: 700; }
+  .compare-card.remo .compare-list li::before { color: #0369A1; }
+  .compare-card.newbuild .compare-list li::before { color: #059669; }
+  .compare-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px; margin-bottom: 12px; }
+  .tag-remo { background: #E0F2FE; color: #0369A1; }
+  .tag-new  { background: #D1FAE5; color: #059669; }
+
+  /* QUIZ */
+  .quiz-wrap { display: flex; flex-direction: column; gap: 20px; margin: 14px 0; }
+  .quiz-card { background: #1E2532; border-radius: 14px; padding: 24px; }
+  .quiz-scenario { font-size: 13.5px; color: rgba(255,255,255,.9); line-height: 1.8; margin-bottom: 18px; }
+  .quiz-scenario strong { color: #fff; }
+  .quiz-options { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+  .quiz-btn { background: var(--white); border: none; border-radius: 8px; padding: 10px 18px; font-size: 13px; font-weight: 600; color: var(--navy); cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .15s; }
+  .quiz-btn:hover:not(:disabled) { background: var(--w-light); color: var(--w); transform: translateY(-1px); }
+  .quiz-btn:disabled { cursor: default; }
+  .quiz-btn.correct { background: #D1FAE5; color: #065F46; border: 2px solid #059669; }
+  .quiz-btn.wrong   { background: #FEE2E2; color: #991B1B; border: 2px solid #EF4444; }
+  .quiz-feedback { border-radius: 8px; padding: 12px 16px; font-size: 13px; line-height: 1.75; display: none; }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #D1FAE5; color: #065F46; }
+  .quiz-feedback.wrong   { background: #FEE2E2; color: #991B1B; }
+
+  .divider { border: none; border-top: 1px dashed var(--border); margin: 18px 0; }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .week-hero { padding: 32px 24px; }
+    .week-hero h1 { font-size: 24px; }
+    .calc-row, .compare-grid { grid-template-columns: 1fr; }
+    .flow-map-row { flex-direction: column; }
+    .quiz-options { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">FF Academy</div>
+    <div class="sb-title">Level 3-1. 핵심 투자 지표</div>
+  </div>
+  <div class="sb-nav-label">목차</div>
+  <a class="sb-item active" href="#s1"><span class="sb-chip">1</span>지표 관계도</a>
+  <a class="sb-item"        href="#s2"><span class="sb-chip">2</span>NOI — 건물이 버는 돈</a>
+  <a class="sb-item"        href="#s3"><span class="sb-chip">3</span>Cap Rate — 수익률</a>
+  <a class="sb-item"        href="#s4"><span class="sb-chip">4</span>LTV — 담보비율</a>
+  <a class="sb-item"        href="#s5"><span class="sb-chip">5</span>IRR — 투자 수익률</a>
+  <a class="sb-item"        href="#s6"><span class="sb-chip">6</span>밸류업 전략</a>
+  <a class="sb-item"        href="#s7"><span class="sb-chip">✓</span>마무리 퀴즈</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="week-hero">
+    <div class="hero-week-tag">WEEK 8 · LEVEL 3</div>
+    <h1>핵심 투자 지표</h1>
+    <p>숫자가 말하는 건물의 언어 — NOI·Cap Rate·LTV·IRR을 이해하면 오피스 시장이 다르게 보입니다</p>
+    <div class="hero-chips">
+      <span class="hero-chip">NOI</span>
+      <span class="hero-chip">Cap Rate</span>
+      <span class="hero-chip">LTV</span>
+      <span class="hero-chip">IRR</span>
+      <span class="hero-chip">리모델링 vs 신축</span>
+    </div>
+  </div>
+
+  <!-- ── 01 지표 관계도 ── -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2 class="section-title">지표들은 어떻게 연결되는가</h2>
+    </div>
+
+    <p>투자 지표들은 따로 외우면 금세 잊어버립니다. <span class="hl">하나의 흐름으로 연결해서 보면</span> 훨씬 오래 기억됩니다. 이번 주 내내 아래 흐름을 머릿속에 두고 공부해 주세요.</p>
+
+    <div class="flow-map">
+      <div class="flow-map-title">💡 투자 지표 연결 흐름</div>
+      <div class="flow-map-row">
+        <div class="flow-map-node">
+          <div class="flow-map-label">임대수입 - 운영비용</div>
+          <div class="flow-map-val">NOI</div>
+        </div>
+        <div class="flow-map-arrow">÷</div>
+        <div class="flow-map-node">
+          <div class="flow-map-label">시장 수익률 기준</div>
+          <div class="flow-map-val">Cap Rate</div>
+        </div>
+        <div class="flow-map-eq">=</div>
+        <div class="flow-map-node highlight">
+          <div class="flow-map-label">건물 적정 가격</div>
+          <div class="flow-map-val">자산 가치</div>
+        </div>
+        <div class="flow-map-arrow">×</div>
+        <div class="flow-map-node">
+          <div class="flow-map-label">대출 한도 비율</div>
+          <div class="flow-map-val">LTV</div>
+        </div>
+        <div class="flow-map-eq">=</div>
+        <div class="flow-map-node">
+          <div class="flow-map-label">얼마나 빌릴 수 있나</div>
+          <div class="flow-map-val">대출금</div>
+        </div>
+      </div>
+      <div style="margin-top:14px; font-size:12px; color:rgba(255,255,255,.5); line-height:1.7">
+        위 과정 전체를 거쳐 투자자가 얼마를 넣고 얼마를 버는지 계산한 최종 수익률 → <strong style="color:#fde68a">IRR</strong>
+      </div>
+    </div>
+
+    <div class="callout callout-point">
+      <div class="clabel">💡 이렇게 생각하세요</div>
+      건물 투자는 결국 <strong>"이 건물이 얼마나 버는가(NOI) → 그 수익 기준으로 얼마짜리인가(Cap Rate) → 내 돈은 얼마나 넣어야 하나(LTV) → 결국 내 수익률은 얼마인가(IRR)"</strong>의 흐름입니다. 이 순서로 생각하면 어떤 지표가 나와도 길을 잃지 않습니다.
+    </div>
+  </section>
+
+  <!-- ── 02 NOI ── -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2 class="section-title">NOI — 건물이 버는 돈</h2>
+    </div>
+
+    <p>NOI는 <strong>Net Operating Income(순영업이익)</strong>의 약자입니다. 건물이 1년 동안 임대료로 번 돈에서, 건물을 유지·운영하는 데 들어간 비용을 뺀 순수한 수익입니다.</p>
+    <p>쉽게 말해 <span class="hl">건물의 월급명세서</span>입니다. 매출(임대료)에서 세금·보험·관리비 같은 필수 지출을 빼고 나면 실제로 손에 남는 돈이 얼마인지 보여줍니다.</p>
+
+    <div class="formula">
+      NOI <span>=</span> 연간 임대수입 <span>-</span> <em>운영비용</em><br>
+      <small>운영비용 = 재산세·보험료·관리비·수선비 등 (대출 이자 제외)</small>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">무엇이 들어가고, 무엇이 빠지는가</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>구분</th><th>항목</th><th>NOI 계산에</th></tr></thead>
+          <tbody>
+            <tr><td><strong>수입</strong></td><td>월 임대료 × 12개월, 주차 수입, 관리비 수입</td><td>✅ 포함</td></tr>
+            <tr><td rowspan="2"><strong>비용</strong></td><td>재산세, 화재보험, 건물 관리비, 수선유지비</td><td>✅ 포함 (빼줌)</td></tr>
+            <tr><td>대출 이자, 감가상각, 소득세</td><td>❌ 제외 (나중에 따로 계산)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <div class="clabel">⚠️ 대출 이자를 왜 빼지 않나요?</div>
+        NOI는 <strong>"이 건물 자체의 수익력"</strong>을 순수하게 보기 위한 지표입니다. 대출을 많이 받았는지 적게 받았는지는 투자자마다 다르기 때문에, 그 변수를 제거하고 건물 본연의 가치를 비교합니다. 마치 식당을 평가할 때 임차료가 얼마인지와 상관없이 "음식 자체의 퀄리티"를 먼저 보는 것과 같습니다.
+      </div>
+    </div>
+
+    <div class="callout callout-tip">
+      <div class="clabel">📌 패스트파이브 연결</div>
+      패스트파이브 입장에서 NOI는 두 번 등장합니다. ① 건물주와 협상할 때 "이 건물의 NOI가 얼마인가"로 상대방 수익 구조를 파악하고, ② 패스트파이브 지점 자체의 수익성(멤버십 수입 - 임대료·운영비)을 평가할 때도 같은 논리가 적용됩니다.
+    </div>
+  </section>
+
+  <!-- ── 03 Cap Rate ── -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2 class="section-title">Cap Rate — 부동산 수익률</h2>
+    </div>
+
+    <p>Cap Rate는 <strong>Capitalization Rate(자본환원율)</strong>의 줄임말입니다. NOI를 알고 있을 때, 이 건물이 시장에서 <span class="hl">얼마짜리인지를 역산</span>하거나 — 반대로 건물 가격을 알 때 <span class="hl">수익률이 얼마인지 계산</span>할 수 있게 해주는 지표입니다.</p>
+    <p>쉽게 말해 <span class="hl">부동산 버전의 예금 이자율</span>입니다. 은행 예금 금리 3%라고 하면 "1억을 맡기면 1년에 300만원 이자"이듯이, Cap Rate 4%라고 하면 "이 건물을 100억에 사면 1년에 NOI가 4억" 이라는 뜻입니다.</p>
+
+    <div class="formula">
+      Cap Rate(%) <span>=</span> <em>NOI</em> ÷ 건물 매입가격 × 100<br>
+      <small>또는 역으로: 건물 가치 = NOI ÷ Cap Rate</small>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">Cap Rate와 건물 가치의 관계</div>
+      <p>Cap Rate가 <strong>낮을수록</strong> 건물 가치는 <strong>높아집니다.</strong> 왜일까요? 강남처럼 안전하고 인기 많은 지역 건물은 다들 사고 싶어서 경쟁이 붙습니다. 경쟁이 붙으면 가격이 올라가고, 가격이 오른 만큼 수익률(Cap Rate)은 낮아집니다. 마치 인기 아파트는 전세가율이 낮아지는 것과 같은 원리입니다.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>권역</th><th>Cap Rate 수준</th><th>해석</th></tr></thead>
+          <tbody>
+            <tr><td><strong>GBD (강남)</strong></td><td>2~3%대</td><td>수요 많음 → 가격 높음 → 수익률 낮음. 안전 자산 선호</td></tr>
+            <tr><td><strong>CBD (도심)</strong></td><td>3~4%대</td><td>안정적이나 강남보다 수요 소폭 낮음</td></tr>
+            <tr><td><strong>YBD (여의도)</strong></td><td>4~5%대</td><td>공급 많아 가격 상대적 낮음, 수익률 높은 편</td></tr>
+            <tr><td><strong>신흥 권역</strong></td><td>4~6%대</td><td>미래 성장 가능성 있으나 리스크도 있음</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">🔢 직접 계산해보기 — Cap Rate & 건물 가치 계산기</div>
+      <div class="calc-box">
+        <div class="calc-header">
+          <span class="calc-header-icon">📈</span>
+          <span class="calc-header-title">Cap Rate 계산기</span>
+          <span class="calc-header-sub">슬라이더를 움직여보세요</span>
+        </div>
+        <div class="calc-body">
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>연간 NOI</label>
+              <div class="val-display" id="cap-noi-val">4억 8,000만원</div>
+              <input type="range" id="cap-noi" min="5000" max="50000" step="1000" value="48000" oninput="calcCap()">
+              <div class="range-labels"><span>5,000만원</span><span>5억원</span></div>
+            </div>
+            <div class="calc-field">
+              <label>시장 평균 Cap Rate</label>
+              <div class="val-display" id="cap-rate-val">3.4%</div>
+              <input type="range" id="cap-rate" min="20" max="80" step="2" value="34" oninput="calcCap()">
+              <div class="range-labels"><span>2% (고가/안전)</span><span>8% (저가/위험)</span></div>
+            </div>
+          </div>
+          <hr class="calc-divider">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:4px;">
+              <div class="calc-result-label">계산식</div>
+              <div class="calc-result-val" id="cap-formula" style="font-size:14px">4억 8,000만원 ÷ 3.4%</div>
+            </div>
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:4px;background:var(--w);">
+              <div class="calc-result-label">🏢 추정 건물 가치</div>
+              <div class="calc-result-val highlight" id="cap-result">141억 1,765만원</div>
+            </div>
+          </div>
+          <div class="calc-explain" id="cap-explain">NOI 4억 8,000만원 ÷ Cap Rate 3.4% = 약 141억원. Cap Rate를 낮출수록(더 안전한 건물일수록) 건물 가치는 급격히 올라갑니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-point">
+      <div class="clabel">💡 Exit Cap Rate란?</div>
+      투자자가 건물을 <strong>살 때 적용하는 Cap Rate(매입 Cap Rate)</strong>와 <strong>팔 때 예상되는 Cap Rate(Exit Cap Rate)</strong>가 있습니다. 매입 Cap Rate보다 Exit Cap Rate가 낮으면(= 건물 가치가 오르면) 시세차익까지 기대할 수 있습니다. 패스트파이브가 입주해 공간을 고급화하면 건물 Cap Rate가 낮아지는(= 가치 상승) 효과를 줄 수 있습니다.
+    </div>
+
+
+<p><a href="https://smatch.kr/insight/posts/cap-rate?from=insight_main_list" target="_blank" class="lbtn">🔗 스매치 인사이트</a>
+<a href="https://www.hankyung.com/article/202605183093Q" target="_blank" class="lbtn">📰[한경] 고금리 시대, 건물주의 가장 비싼 실수는?</a></p>
+
+  </section>
+  <!-- ── 04 LTV ── -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2 class="section-title">LTV — 얼마나 빌릴 수 있나</h2>
+    </div>
+
+    <p>LTV는 <strong>Loan To Value(담보인정비율)</strong>의 약자입니다. 건물 가치 대비 얼마까지 대출받을 수 있는지를 나타내는 비율입니다.</p>
+    <p>쉽게 말해 <span class="hl">전세 레버리지</span>와 같습니다. 10억짜리 집을 살 때 전세 7억을 끼고 3억만 내 돈으로 산다면 LTV 70%인 셈입니다. 상업용 부동산은 보통 LTV 50~70% 범위 안에서 대출이 이루어집니다.</p>
+
+    <div class="formula">
+      LTV(%) <span>=</span> <em>대출금액</em> ÷ 건물 감정가치 × 100<br>
+      <small>또는: 대출 가능 금액 = 건물 가치 × LTV 비율</small>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">🔢 직접 계산해보기 — 투자 구조 계산기</div>
+      <div class="calc-box">
+        <div class="calc-header">
+          <span class="calc-header-icon">🏦</span>
+          <span class="calc-header-title">LTV & 투자 구조 계산기</span>
+          <span class="calc-header-sub">슬라이더를 움직여보세요</span>
+        </div>
+        <div class="calc-body">
+          <div class="calc-row">
+            <div class="calc-field">
+              <label>건물 가치 (매입가)</label>
+              <div class="val-display" id="ltv-val-display">100억원</div>
+              <input type="range" id="ltv-val" min="10" max="500" step="10" value="100" oninput="calcLTV()">
+              <div class="range-labels"><span>10억</span><span>500억</span></div>
+            </div>
+            <div class="calc-field">
+              <label>LTV 비율</label>
+              <div class="val-display" id="ltv-rate-val">60%</div>
+              <input type="range" id="ltv-rate" min="30" max="80" step="5" value="60" oninput="calcLTV()">
+              <div class="range-labels"><span>30%</span><span>80%</span></div>
+            </div>
+          </div>
+          <hr class="calc-divider">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:4px;background:var(--w);">
+              <div class="calc-result-label">🏦 대출금 (타인 자본)</div>
+              <div class="calc-result-val highlight" id="ltv-loan">60억원</div>
+            </div>
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:4px;">
+              <div class="calc-result-label">💰 자기 자본</div>
+              <div class="calc-result-val" id="ltv-equity">40억원</div>
+            </div>
+            <div class="calc-result" style="flex-direction:column;align-items:flex-start;gap:4px;">
+              <div class="calc-result-label">📊 레버리지 배율</div>
+              <div class="calc-result-val" id="ltv-leverage">2.5배</div>
+            </div>
+          </div>
+          <div class="calc-explain" id="ltv-explain">100억 건물에 LTV 60% = 60억 대출, 40억은 내 돈. 레버리지 2.5배 → 건물 가치가 10% 오르면 내 자본 수익률은 25%가 됩니다.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">LTV vs LTC — 뭐가 다른가요?</div>
+      <p>LTC는 <strong>Loan To Cost(총사업비 대비 대출비율)</strong>로, 주로 신축·개발 사업에서 씁니다. 이미 완성된 건물의 가치(LTV)가 아니라 건물을 짓는 데 드는 총비용 대비 대출을 얼마나 받는지를 봅니다.</p>
+      <div class="callout callout-tip">
+        <div class="clabel">📌 언제 어떤 걸 쓰나요?</div>
+        <strong>LTV</strong> → 기존 건물 매입·담보대출 시. "이 건물 얼마짜리야? 그럼 얼마까지 빌려줄게"<br>
+        <strong>LTC</strong> → 신축·개발 PF(프로젝트파이낸싱) 시. "공사비가 총 얼마야? 그럼 그 중 몇 %까지 빌려줄게"<br>
+        일반 오피스 업무에서는 LTV를 더 자주 접하게 됩니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 05 IRR ── -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2 class="section-title">IRR — 투자 수익률의 완결판</h2>
+    </div>
+
+    <p>IRR은 <strong>Internal Rate of Return(내부수익률)</strong>의 약자입니다. 투자한 돈이 매년 얼마의 수익률로 불어났는지를 <span class="hl">하나의 퍼센트 숫자</span>로 표현한 것입니다.</p>
+    <p>지금까지 배운 NOI·Cap Rate·LTV가 <strong>"지금 이 건물이 어떤 상태인가"</strong>를 보는 지표라면, IRR은 <strong>"처음 투자부터 매각까지 전체 기간 동안 내 돈이 얼마나 불었는가"</strong>를 보는 지표입니다.</p>
+
+    <div class="callout callout-tip">
+      <div class="clabel">📌 비유로 이해하기</div>
+      친구에게 1억을 빌려줬습니다. 1년 후 1,200만원, 2년 후 1,200만원, 3년 후 원금 1억 + 1,200만원을 돌려받았습니다. 이 투자의 수익률이 얼마인가요? 단순히 3,600만원 ÷ 1억 = 36%라고 하면 틀립니다. <strong>돈을 언제 받았느냐(시간 가치)</strong>까지 반영한 수익률이 IRR입니다. 이 경우 IRR은 약 12%입니다.
+    </div>
+
+    <div class="sub">
+      <div class="sub-title">IRR의 핵심 원리 — 시간 가치</div>
+      <p>IRR 계산이 복잡한 이유는 <strong>"지금 받는 돈 vs 나중에 받는 돈"의 가치가 다르기 때문</strong>입니다. 지금 당장 1억을 받는 것과 5년 후에 1억을 받는 것은 같은 금액이지만 가치는 다릅니다. 지금 받으면 5년 동안 재투자가 가능하니까요.</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>투자 시나리오</th><th>IRR</th><th>해석</th></tr></thead>
+          <tbody>
+            <tr><td>5년 보유 후 매각, 연 임대수익 + 시세차익</td><td><strong>10~12%</strong></td><td>부동산 투자 일반적 목표 수준</td></tr>
+            <tr><td>임대수익만, 매각 없음</td><td><strong>4~6%</strong></td><td>안정적이나 낮은 수익률</td></tr>
+            <tr><td>공실 리스크 높은 신흥 권역</td><td><strong>8~15%</strong></td><td>고위험 고수익 구조</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout callout-warn">
+        <div class="clabel">⚠️ 8주차 학습 범위 안내</div>
+        IRR의 정확한 계산(현금흐름 할인법)은 재무 전공 수준의 내용입니다. 이번 주차에서는 <strong>"IRR이 높을수록 투자 매력도가 높다", "시간 가치를 반영한 수익률"</strong>이라는 개념을 이해하는 것으로 충분합니다. 실무에서는 엑셀 IRR 함수가 자동으로 계산해 줍니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 06 밸류업 ── -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2 class="section-title">밸류업 전략 — 리모델링 vs 신축</h2>
+    </div>
+
+    <p>건물 투자자가 NOI를 높이고 Cap Rate를 낮춰(= 자산 가치를 올려) 수익을 극대화하는 전략을 <strong>밸류업(Value-up)</strong>이라고 합니다. 가장 대표적인 두 가지 방법이 리모델링과 신축입니다.</p>
+
+    <div class="sub">
+      <div class="sub-title">리모델링 vs 신축 비교</div>
+      <div class="compare-grid">
+        <div class="compare-card remo">
+          <div class="compare-icon">🔨</div>
+          <div class="compare-title">리모델링</div>
+          <span class="compare-tag tag-remo">기존 건물 개선</span>
+          <ul class="compare-list">
+            <li>기존 골조 유지, 내외부 전면 개선</li>
+            <li>신축 대비 공사비 30~50% 절감</li>
+            <li>공사 기간 짧음 (6개월~1.5년)</li>
+            <li>기존 임차인 유지 가능 (일부)</li>
+            <li>인허가 리스크 낮음</li>
+            <li>노후 설비 한계 존재 — 근본 해결 어려움</li>
+          </ul>
+        </div>
+        <div class="compare-card newbuild">
+          <div class="compare-icon">🏗️</div>
+          <div class="compare-title">신축</div>
+          <span class="compare-tag tag-new">완전히 새로 짓기</span>
+          <ul class="compare-list">
+            <li>최신 스펙·설비·디자인 구현 가능</li>
+            <li>Prime급 등급 달성 가능</li>
+            <li>공사 기간 길고 (2~4년) 비용 큼</li>
+            <li>완공 후 임차인 유치부터 시작</li>
+            <li>인허가·PF 리스크 존재</li>
+            <li>장기 수익성은 최고</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tbl-wrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>판단 기준</th><th>리모델링이 유리</th><th>신축이 유리</th></tr></thead>
+          <tbody>
+            <tr><td><strong>건물 연령</strong></td><td>15~25년 (골조 양호)</td><td>30년 이상 (노후화 심각)</td></tr>
+            <tr><td><strong>자금 상황</strong></td><td>자금 여력 제한적</td><td>충분한 자금·PF 가능</td></tr>
+            <tr><td><strong>시장 상황</strong></td><td>임대 시장 침체기</td><td>공급 부족, 수요 강한 시기</td></tr>
+            <tr><td><strong>목적</strong></td><td>단기 수익 개선</td><td>장기 자산 가치 극대화</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-point">
+        <div class="clabel">💡 패스트파이브 연결</div>
+        패스트파이브가 입주하는 것 자체가 건물주에게는 <strong>일종의 리모델링 효과</strong>입니다. 패스트파이브가 인테리어를 전면 개선하고 활기를 불어넣으면, 건물의 임대 매력도가 올라가고 Cap Rate가 낮아져(= 자산 가치 상승) 건물주 입장에서도 Win-Win이 됩니다. 이것이 패스트파이브가 건물주에게 제안할 수 있는 핵심 가치입니다.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 07 QUIZ ── -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <div class="section-num">✓</div>
+      <h2 class="section-title">학습 마무리 퀴즈</h2>
+    </div>
+    <p>오늘 배운 지표들을 실전 시나리오에 적용해보세요.</p>
+
+    <div class="quiz-wrap">
+
+      <div class="quiz-card" id="q1">
+        <div class="quiz-scenario">
+          <strong>Q1.</strong> 강남 A오피스 빌딩의 연간 임대수입은 10억원, 운영비용은 2억원입니다. 이 건물의 <strong>NOI</strong>는 얼마인가요?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer8('q1',this,false)">10억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q1',this,true)">8억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q1',this,false)">12억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q1',this,false)">2억원</button>
+        </div>
+        <div class="quiz-feedback" id="q1-feedback"></div>
+      </div>
+
+      <div class="quiz-card" id="q2">
+        <div class="quiz-scenario">
+          <strong>Q2.</strong> 같은 건물의 NOI가 8억원이고, 시장 Cap Rate가 4%입니다. 이 건물의 <strong>적정 시장 가치</strong>는 얼마인가요?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer8('q2',this,false)">32억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q2',this,false)">80억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q2',this,true)">200억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q2',this,false)">400억원</button>
+        </div>
+        <div class="quiz-feedback" id="q2-feedback"></div>
+      </div>
+
+      <div class="quiz-card" id="q3">
+        <div class="quiz-scenario">
+          <strong>Q3.</strong> 200억원짜리 건물을 매입할 때 LTV 60%로 대출을 받는다면, <strong>내 돈(자기자본)</strong>은 얼마가 필요한가요?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer8('q3',this,false)">60억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q3',this,true)">80억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q3',this,false)">120억원</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q3',this,false)">200억원</button>
+        </div>
+        <div class="quiz-feedback" id="q3-feedback"></div>
+      </div>
+
+      <div class="quiz-card" id="q4">
+        <div class="quiz-scenario">
+          <strong>Q4.</strong> 강남 GBD 건물의 Cap Rate가 3%이고, 여의도 YBD 건물의 Cap Rate가 5%입니다. 같은 NOI를 가진 두 건물 중 <strong>시장 가치가 더 높은 건물</strong>은 어느 쪽인가요?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-btn" onclick="checkAnswer8('q4',this,true)">강남 GBD (Cap Rate 3%)</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q4',this,false)">여의도 YBD (Cap Rate 5%)</button>
+          <button class="quiz-btn" onclick="checkAnswer8('q4',this,false)">똑같다</button>
+        </div>
+        <div class="quiz-feedback" id="q4-feedback"></div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-teal" style="margin-top:24px">
+      <div class="clabel">✅ 실무에 적용해보기</div>
+      주변에서 실제 거래된 오피스 빌딩 사례를 찾아 NOI와 Cap Rate를 역산해보세요. 힌트: 부동산 뉴스에서 "○○빌딩 ○○억에 매각" 기사를 찾고, 자문사 리포트에서 해당 권역 Cap Rate를 확인하면 NOI를 추정할 수 있습니다.
+    </div>
+  </section>
+
+</main>
+</div>
+
+<script>
+  // NOI Calculator
+  function calcNOI() {
+    const rent = parseInt(document.getElementById('noi-rent').value);
+    const costPct = parseInt(document.getElementById('noi-cost').value);
+    const annual = rent * 12;
+    const opcost = Math.round(annual * costPct / 100);
+    const noi = annual - opcost;
+    document.getElementById('noi-rent-val').textContent = formatWon(rent) + '만원';
+    document.getElementById('noi-cost-val').textContent = costPct + '%';
+    document.getElementById('noi-annual').textContent = formatKor(annual);
+    document.getElementById('noi-opcost').textContent = formatKor(opcost);
+    document.getElementById('noi-result').textContent = formatKor(noi);
+    document.getElementById('noi-explain').textContent =
+      `월 임대수입 ${formatWon(rent)}만원 × 12 = 연 ${formatKor(annual)}에서 운영비용 ${costPct}%(${formatKor(opcost)})를 빼면 NOI는 ${formatKor(noi)}입니다.`;
+  }
+
+  // Cap Rate Calculator
+  function calcCap() {
+    const noi = parseInt(document.getElementById('cap-noi').value);
+    const rate = parseInt(document.getElementById('cap-rate').value) / 10;
+    const val = Math.round(noi / (rate / 100));
+    document.getElementById('cap-noi-val').textContent = formatKor(noi);
+    document.getElementById('cap-rate-val').textContent = rate.toFixed(1) + '%';
+    document.getElementById('cap-formula').textContent = `${formatKor(noi)} ÷ ${rate.toFixed(1)}%`;
+    document.getElementById('cap-result').textContent = formatKor(val);
+    document.getElementById('cap-explain').textContent =
+      `NOI ${formatKor(noi)} ÷ Cap Rate ${rate.toFixed(1)}% = 약 ${formatKor(val)}. Cap Rate를 낮출수록(더 안전한 건물일수록) 건물 가치는 급격히 올라갑니다.`;
+  }
+
+  // LTV Calculator
+  function calcLTV() {
+    const val = parseInt(document.getElementById('ltv-val').value);
+    const rate = parseInt(document.getElementById('ltv-rate').value);
+    const loan = Math.round(val * rate / 100);
+    const equity = val - loan;
+    const leverage = (val / equity).toFixed(1);
+    document.getElementById('ltv-val-display').textContent = val + '억원';
+    document.getElementById('ltv-rate-val').textContent = rate + '%';
+    document.getElementById('ltv-loan').textContent = loan + '억원';
+    document.getElementById('ltv-equity').textContent = equity + '억원';
+    document.getElementById('ltv-leverage').textContent = leverage + '배';
+    document.getElementById('ltv-explain').textContent =
+      `${val}억 건물에 LTV ${rate}% = ${loan}억 대출, ${equity}억은 내 돈. 레버리지 ${leverage}배 → 건물 가치가 10% 오르면 내 자본 수익률은 약 ${(10 * leverage).toFixed(0)}%가 됩니다.`;
+  }
+
+  // Format helpers
+  function formatWon(man) {
+    if (man >= 10000) return (man/10000).toFixed(1).replace(/\.0$/,'') + '억 ' + (man%10000 > 0 ? (man%10000)+'만' : '');
+    return man.toLocaleString();
+  }
+  function formatKor(man) {
+    if (man >= 10000) {
+      const eok = Math.floor(man / 10000);
+      const rem = man % 10000;
+      if (rem === 0) return eok + '억원';
+      return eok + '억 ' + rem.toLocaleString() + '만원';
+    }
+    return man.toLocaleString() + '만원';
+  }
+
+  // Quiz
+  function checkAnswer8(qId, btn, isCorrect) {
+    const card = document.getElementById(qId);
+    const buttons = card.querySelectorAll('.quiz-btn');
+    const feedback = document.getElementById(qId + '-feedback');
+    buttons.forEach(b => b.disabled = true);
+    if (isCorrect) {
+      btn.classList.add('correct');
+      feedback.className = 'quiz-feedback correct show';
+      const msgs = {
+        q1: '🎉 정답! NOI = 연간 임대수입 - 운영비용 = 10억 - 2억 = 8억원입니다. 대출 이자는 NOI 계산에서 제외합니다.',
+        q2: '🎉 정답! 건물 가치 = NOI ÷ Cap Rate = 8억 ÷ 0.04 = 200억원입니다.',
+        q3: '🎉 정답! LTV 60% = 대출 120억 / 자기자본 = 200억 - 120억 = 80억원이 필요합니다.',
+        q4: '🎉 정답! Cap Rate가 낮을수록 건물 가치는 높습니다. 같은 NOI 기준 강남(3%) 건물 가치 > 여의도(5%) 건물 가치입니다.'
+      };
+      feedback.innerHTML = msgs[qId];
+    } else {
+      btn.classList.add('wrong');
+      feedback.className = 'quiz-feedback wrong show';
+      const msgs = {
+        q1: '😅 아쉽습니다! NOI = 임대수입 - 운영비용입니다. 10억 - 2억을 계산해보세요.',
+        q2: '😅 아쉽습니다! 건물 가치 = NOI ÷ Cap Rate 공식을 적용해보세요. 8억 ÷ 4%는 얼마일까요?',
+        q3: '😅 아쉽습니다! LTV 60%는 건물 가치의 60%를 대출받는다는 뜻입니다. 자기자본은 나머지 40%입니다.',
+        q4: '😅 아쉽습니다! Cap Rate와 건물 가치는 반비례합니다. Cap Rate가 낮을수록 가치가 높습니다.'
+      };
+      feedback.innerHTML = msgs[qId];
+      setTimeout(() => {
+        buttons.forEach(b => { b.disabled = false; b.classList.remove('wrong'); });
+        feedback.className = 'quiz-feedback';
+      }, 2000);
+    }
+  }
+
+  // Sidebar scroll spy
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.sb-item');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const a = document.querySelector(`.sb-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+  navItems.forEach(n => {
+    n.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(n.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>
